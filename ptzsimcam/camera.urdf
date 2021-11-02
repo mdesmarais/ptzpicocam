@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<robot name="camera_robot">
+    <!-- width depth height -->
+    <link name="world" />
+    <link name="body_link">
+        <inertial>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <mass value="100.0"/>
+            <inertia ixx="16.208333333333332" ixy="0.0" ixz="0.0" iyy="21.9375" iyz="0.0" izz="7.770833333333333"/>
+        </inertial>
+
+        <visual>
+            <geometry>
+                <box size="0.9 1.35 0.35"/>
+            </geometry>
+            <material name="body_material">
+                <color rgba="0.478 0.478 0.478 1.0"/>
+            </material>
+        </visual>
+    </link>
+
+    <link name="base_link">
+        <inertial>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <mass value="1.0"/>
+            <inertia ixx="0.004333333333333335" ixy="0.0" ixz="0.0" iyy="0.004333333333333335" iyz="0.0" izz="0.0013333333333333337"/>
+        </inertial>
+        
+        <visual>
+            <geometry>
+                <cylinder radius="0.40" length="0.2"/>
+            </geometry>
+            <material name="base_material">
+                <color rgba="0.827 0.447 0.035 1.0"/>
+            </material>
+        </visual>
+    </link>
+
+    <material name="arm_material">
+        <color rgba="0.211 0.211 0.211 1.0"/>
+    </material>
+
+    <link name="left_arm_link">
+        <inertial>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <mass value="1.0"/>
+            <inertia ixx="0.020833333333333332" ixy="0.0" ixz="0.0" iyy="0.008333333333333333" iyz="0.0" izz="0.01416666666666667"/>
+        </inertial>
+        <visual>
+            <origin xyz="-0.3 0.0 0.25" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="0.1 0.3 0.4"/>
+            </geometry>
+            <material name="arm_material" />
+        </visual>
+    </link>
+
+    <link name="right_arm_link">
+        <inertial>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <mass value="1.0"/>
+            <inertia ixx="0.020833333333333332" ixy="0.0" ixz="0.0" iyy="0.008333333333333333" iyz="0.0" izz="0.01416666666666667"/>
+        </inertial>
+        <visual>
+            <origin xyz="0.3 0.0 0.25" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="0.1 0.3 0.4"/>
+            </geometry>
+            <material name="arm_material" />
+        </visual>
+    </link>
+
+    <link name="cam_link">
+        <inertial>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <mass value="1.0"/>
+            <inertia ixx="0.07083333333333335" ixy="0.0" ixz="0.0" iyy="0.08833333333333333" iyz="0.0" izz="0.02416666666666667"/>
+        </inertial>
+        <visual>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="0.5 0.9 0.2"/>
+            </geometry>
+            <material name="">
+                <color rgba="1.0 0.0 0.0 1.0"/>
+            </material>
+        </visual>
+    </link>
+
+    <joint name="world_joint" type="fixed">
+        <parent link="world"/>
+        <child link="body_link"/>
+    </joint>
+
+    <joint name="base_joint" type="revolute">
+        <origin xyz="0.0 0.25 0.15" rpy="0.0 0.0 0.0"/>
+        <parent link="body_link"/>
+        <child link="base_link"/>
+        <axis xyz="0.0 0.0 1.0"/>
+        <limit lower="-1.74533" upper="1.74533" effort="0.0" velocity="0.0"/>
+    </joint>
+
+    <joint name="cam_joint" type="revolute">
+        <origin xyz="0.0 0.1 0.4" rpy="0.0 0.0 0.0"/>
+        <parent link="base_link"/>
+        <child link="cam_link"/>
+        <axis xyz="1.0 0.0 0.0"/>
+        <limit lower="-0.436332" upper="0.436332" effort="0.0" velocity="0.0"/>
+    </joint>
+
+    <joint name="left_arm_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="left_arm_link"/>
+    </joint>
+
+    <joint name="right_arm_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="right_arm_link"/>
+    </joint>
+</robot>
