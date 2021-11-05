@@ -1,3 +1,4 @@
+import os
 import time
 
 import pybullet as pb
@@ -81,8 +82,9 @@ if __name__ == '__main__':
     # The flag URDF_USE_INERTIA_FROM_FILE is IMPORTANT
     # By default Bullet computes an approximation of the inertia matrix
     # without looking at the urdf. A better matrix can be computed by hand.
-    robot_camera = pb.loadURDF('camera.urdf', flags=pb.URDF_USE_INERTIA_FROM_FILE)
-    pb.loadURDF('wall.urdf', basePosition=[0.0, 2.0, 0.5])
+    current_foler = os.path.dirname(__file__)
+    robot_camera = pb.loadURDF(os.path.join(current_foler, 'camera.urdf'), flags=pb.URDF_USE_INERTIA_FROM_FILE)
+    pb.loadURDF(os.path.join(current_foler, 'wall.urdf'), basePosition=[0.0, 2.0, 0.5])
 
     camera = RobotCamera(robot_camera, 1, 2)
     sim = Simulation(camera)
