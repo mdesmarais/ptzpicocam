@@ -1,6 +1,6 @@
 import camera
-#from machine import Pin, Timer, ADC
-import utime
+from machine import Pin, Timer, ADC
+import time
 from enum import IntEnum
 
 global flag_read_pos_JoyStick
@@ -168,7 +168,8 @@ def convert_joystick_values(positionX, positionY, positionZ):
     tiltDir, tiltSpeed = calc_Tilt_Com(positionY)  # y
     # setTiltPan(tiltDir,tiltSpeed,panDir,panSpeed)
 
-while True:
-    utime.sleep(1)
-    if flag_read_pos_JoyStick == True:
-        convert_joystick_values(posX, posY, posZ)
+def fct():
+    while True:
+        time.sleep(1)
+        if flag_read_pos_JoyStick == True:
+            convert_joystick_values(posX, posY, posZ)
