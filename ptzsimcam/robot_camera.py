@@ -8,9 +8,14 @@ from scipy.spatial.transform import Rotation as R
 from homogeneous_transform import rot_x, rot_z, translation
 
 
+ZOOM_SPEEDS = [0, 1, 2, 5, 7, 10, 15, 20]
+
 class RobotCamera:
 
     """Represents a camera that uses the VISCA protocol."""
+
+    ZOOM_FOV_MIN = 2.9
+    ZOOM_FOV_MAX = 55.9
 
     def __init__(self, main_link, pan_joint_index: int, tilt_joint_index: int):
         """Creates a new robot camera in a simulation.
@@ -26,7 +31,10 @@ class RobotCamera:
 
         self.camera_direction = np.array([0.0, 10.0, 0.0])
         self.camera_orientation = np.array([0.0, 0.0, 1.0])
-        self.projection_matrix = pb.computeProjectionMatrixFOV(fov=45.0, aspect=1.0, nearVal=0.1, farVal=3.1)
+        self.projection_matrix = compute_projection_matrix(self.ZOOM_FOV_MAX)
+        self.current_fov = self.ZOOM_FOV_MAX
+        self.zoom_speed = 0
+        self.zoom_direction = 0
 
         self.first_join_base = translation(np.array([0.0, 0.25, 0.15]))
         self.second_join_base = translation(np.array([0.0, 0.1, 0.4]))
@@ -108,3 +116,30 @@ class RobotCamera:
         tilt_joint_value = cast(float, joint_states[1][0])
 
         self.positions[position_index] = [pan_joint_value, tilt_joint_value]
+
+    def update(self, refresh_freq: float) -> None:
+        """Updates camera zoom and renders an image.
+
+        This method should not be called too often because
+        some computations are slow.
+        
+        :param refresh_freq: frequency at which this method will be called
+        """
+        self.render_image()
+        zoom_amount = ZOOM_SPEEDS[self.zoom_speed]
+
+        new_fov = self.current_fov + self.zoom_direction * zoom_amount * refresh_freq
+
+        if new_fov < self.ZOOM_FOV_MIN:
+            new_fov = self.ZOOM_FOV_MIN
+
+        if new_fov > self.ZOOM_FOV_MAX:
+            new_fov = self.ZOOM_FOV_MAX
+
+        if new_fov != self.current_fov:
+            self.projection_matrix = compute_projection_matrix(new_fov)
+            self.current_fov = new_fov
+
+
+def compute_projection_matrix(fov):
+    return pb.computeProjectionMatrixFOV(fov=fov, aspect=1.0, nearVal=0.1, farVal=100)

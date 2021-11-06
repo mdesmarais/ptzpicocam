@@ -86,6 +86,39 @@ def handle_pan_tilt_packet(camera: 'RobotCamera', packet: 'RawViscaPacket'):
     camera.drive()
 
 
+def handle_zoom_packet(camera: 'RobotCamera', packet: 'RawViscaPacket'):
+    """Updates the camera zoom according to the given packet.
+    
+    The packet should be a Zoom command.
+    If the packet contains an invalid zoom speed then it will be ignored,
+    or if the direction is unknown.
+    
+    :param camera: instance of the camera to update
+    :param packet: a packet containing a Zoom command"""
+    if len(packet.raw_data) != 4:
+        logger.warning(f'Invalid zoom packet, expected size of 4, got {len(packet.raw_data)}')
+        return
+
+    zoom_data = packet.raw_data[3]
+    direction = (zoom_data >> 4) & 0xf
+    speed = zoom_data & 0xf
+
+    if speed < 1 or speed > 7:
+        logger.warning(f'Expecting zoom speed between 1 and 7, got {speed}')
+        return
+
+    camera.zoom_speed = speed
+
+    if direction == 0:
+        camera.zoom_speed = 0
+    elif direction == 2:
+        camera.zoom_direction = -1
+    elif direction == 3:
+        camera.zoom_direction = 1
+    else:
+        logger.warning(f'Unknown zoom direction {direction}')
+
+
 def process_packet(camera: 'RobotCamera', packet: 'RawViscaPacket') -> None:
     """Calls the corresponding handler for the given packet.
     
@@ -105,5 +138,6 @@ def process_packet(camera: 'RobotCamera', packet: 'RawViscaPacket') -> None:
 # Association between the start of a packet with a handler
 PACKET_SIGNATURES: Dict[bytes, Callable[['RobotCamera', 'RawViscaPacket'], None]] = {
     b'\x01\x04\x3f': handle_memory_packet,
-    b'\x01\x06\x01': handle_pan_tilt_packet
+    b'\x01\x06\x01': handle_pan_tilt_packet,
+    b'\x01\x04\x07': handle_zoom_packet
 }

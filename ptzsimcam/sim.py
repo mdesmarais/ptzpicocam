@@ -6,7 +6,7 @@ from threading import Thread
 import pybullet as pb
 from serial import Serial, SerialException
 
-from camera_server import handle_pan_tilt_packet, process_packet
+from camera_server import handle_pan_tilt_packet, handle_zoom_packet, process_packet
 from robot_camera import RobotCamera
 from visca import RawViscaPacket
 
@@ -25,13 +25,14 @@ class Simulation:
         self.enable_gui_control = enable_gui_control
 
         self.pan_vel_slider = pb.addUserDebugParameter('PAN vel', -0x18, 0x18, startValue=0)
-
         self.tilt_vel_slider = pb.addUserDebugParameter('TILT vel', -0x17, 0x17, startValue=0)
+        self.zoom_vel_slider = pb.addUserDebugParameter('ZOOM vel', -7, 7, startValue=0)
 
     def gui_controller(self) -> None:
         """Reads slider values and sends driver packet to the camera.s"""
         pan_vel = pb.readUserDebugParameter(self.pan_vel_slider)
         tilt_vel = pb.readUserDebugParameter(self.tilt_vel_slider)
+        zoom_vel = pb.readUserDebugParameter(self.zoom_vel_slider)
 
         if pan_vel < 0:
             pan_dir = 1
@@ -47,6 +48,16 @@ class Simulation:
         else:
             tilt_dir = 3
 
+        if zoom_vel < 0:
+            zoom_dir = 3
+        elif zoom_vel > 0:
+            zoom_dir = 2
+        else:
+            zoom_dir = 0
+            zoom_vel = 1
+
+        zoom_vel = max(1, abs(int(zoom_vel)))
+
         data = bytearray(b'\x01\x06\x01')
         data.append(abs(int(pan_vel)))
         data.append(abs(int(tilt_vel)))
@@ -55,6 +66,12 @@ class Simulation:
 
         p = RawViscaPacket(1, 0, data)
         handle_pan_tilt_packet(self.camera, p)
+
+        data = bytearray(b'\x01\x04\x07\x00')
+        data[3] = (zoom_dir << 4) | zoom_vel
+
+        p = RawViscaPacket(1, 0, data)
+        handle_zoom_packet(self.camera, p)
 
     def run(self):
         """Simulation loop."""
@@ -68,7 +85,7 @@ class Simulation:
             # For the camera, 30Hz is enough. 240 / 30 = 8
             # We render an image every 8 frames.
             if frame_count == 8:
-                self.camera.render_image()
+                self.camera.update(1.0/30)
                 frame_count = 0
 
             pb.stepSimulation()
@@ -109,7 +126,7 @@ def main(args) -> None:
     # without looking at the urdf. A better matrix can be computed by hand.
     current_foler = os.path.dirname(__file__)
     robot_camera = pb.loadURDF(os.path.join(current_foler, 'camera.urdf'), flags=pb.URDF_USE_INERTIA_FROM_FILE)
-    pb.loadURDF(os.path.join(current_foler, 'wall.urdf'), basePosition=[0.0, 2.0, 0.5])
+    pb.loadURDF(os.path.join(current_foler, 'wall.urdf'), basePosition=[0.0, 5.0, 0.5])
 
     camera = RobotCamera(robot_camera, 1, 2)
     serial_port = args.serial_port
