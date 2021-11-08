@@ -26,12 +26,13 @@ def handle_memory_packet(camera: 'RobotCamera', packet: 'RawViscaPacket') -> boo
     
     :param camera: instance of the camera to update
     :param packet: a packet containing a Memory command"""
-    if len(packet.raw_data) != 5:
-        logger.warning(f'Invalid memory packet, expected size of 5, got {len(packet.raw_data)}')
+    packet_data = packet.data
+    if len(packet_data) != 5:
+        logger.warning(f'Invalid memory packet, expected size of 5, got {len(packet_data)}')
         return False
 
-    action = packet.raw_data[3]
-    position_index = packet.raw_data[4]
+    action = packet_data[3]
+    position_index = packet_data[4]
 
     if position_index < 0 or position_index > 5:
         logger.warning(f'Invalid position index {position_index}')
@@ -59,19 +60,20 @@ def handle_pan_tilt_packet(camera: 'RobotCamera', packet: 'RawViscaPacket') -> b
     
     :param camera: instance of the camera to update
     :param packet: a packet containing a PanTiltDrive command"""
-    if len(packet.raw_data) != 7:
-        logger.warning(f'Invalid pan tilt packet, expected size of 7, got {len(packet.raw_data)}')
+    packet_data = packet.data
+    if len(packet_data) != 7:
+        logger.warning(f'Invalid pan tilt packet, expected size of 7, got {len(packet_data)}')
         return False
 
     try:
-        pan_speed = SPEEDS_LOOKUP[packet.raw_data[3]]
-        tilt_speed = SPEEDS_LOOKUP[packet.raw_data[4]]
+        pan_speed = SPEEDS_LOOKUP[packet_data[3]]
+        tilt_speed = SPEEDS_LOOKUP[packet_data[4]]
     except IndexError:
         pan_speed = 0
         tilt_speed = 0
 
-    pan_direction = packet.raw_data[5]
-    tilt_direction = packet.raw_data[6]
+    pan_direction = packet_data[5]
+    tilt_direction = packet_data[6]
 
     if pan_direction == 1:
         camera.pan_speed = pan_speed
@@ -101,11 +103,12 @@ def handle_zoom_packet(camera: 'RobotCamera', packet: 'RawViscaPacket') -> bool:
     
     :param camera: instance of the camera to update
     :param packet: a packet containing a Zoom command"""
-    if len(packet.raw_data) != 4:
-        logger.warning(f'Invalid zoom packet, expected size of 4, got {len(packet.raw_data)}')
+    packet_data = packet.data
+    if len(packet_data) != 4:
+        logger.warning(f'Invalid zoom packet, expected size of 4, got {len(packet_data)}')
         return False
 
-    zoom_data = packet.raw_data[3]
+    zoom_data = packet_data[3]
     direction = (zoom_data >> 4) & 0xf
     speed = zoom_data & 0xf
 
@@ -134,12 +137,13 @@ def process_packet(camera: 'RobotCamera', packet: 'RawViscaPacket') -> None:
     :param camera: instance of the camera to update
     :param packet: packet to handle
     """
+    packet_data = packet.data
     for packet_signature, packet_handler in PACKET_SIGNATURES.items():
-        if packet.raw_data.startswith(packet_signature):
+        if packet_data.startswith(packet_signature):
             packet_handler(camera, packet)
             return
 
-    logger.warning(f'Unknown packet {packet.raw_data}')
+    logger.warning(f'Unknown packet {packet_data}')
 
 
 # Association between the start of a packet with a handler

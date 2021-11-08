@@ -1,6 +1,7 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, PropertyMock
 
+from ptzpicocam.camera import CameraAPI, PanDirection, TiltDirection
 from ptzpicocam.visca import RawViscaPacket
 
 from ptzsimcam.camera_server import (handle_memory_packet,
@@ -9,17 +10,21 @@ from ptzsimcam.camera_server import (handle_memory_packet,
 
 
 def create_packet(data: bytes) -> 'RawViscaPacket':
-    return RawViscaPacket(1, 0, bytearray(data))
+    p = RawViscaPacket(1, 0, bytearray(b'\x00' + data + b'\x00'))
+    p.data_size = len(data)
+
+    return p
 
 
 class TestHandleMemoryPacket(TestCase):
 
     def create_memory_packet(self, action: int, position_index: int) -> 'RawViscaPacket':
-        data = bytearray(b'\x01\x04\x3f')
-        data.append(action)
-        data.append(position_index)
+        p = RawViscaPacket(1, 0, bytearray(20))
+        p.write_bytes(b'\x01\x04\x3f')
+        p.write_data(action)
+        p.write_data(position_index)
 
-        return RawViscaPacket(1, 0, data)
+        return p
 
     def test_handle_memory_packet_Should_ReturnFalse_When_GivenInvalidPacket(self):
         empty_packet = create_packet(b'')
@@ -69,15 +74,6 @@ class TestHandleMemoryPacket(TestCase):
 
 class TestHandlePanTiltPacket(TestCase):
 
-    def create_pan_tilt_packet(self, pan_speed: int, pan_direction: int, tilt_speed: int, tilt_direction: int) -> 'RawViscaPacket':
-        data = bytearray(b'\x01\x06\x01')
-        data.append(pan_speed)
-        data.append(tilt_speed)
-        data.append(pan_direction)
-        data.append(tilt_direction)
-
-        return RawViscaPacket(1, 0, data)
-
     def test_handle_pan_tilt_packet_Should_ReturnFalse_When_GivenInvalidPacket(self):
         empty_packet = create_packet(b'')
         result = handle_pan_tilt_packet(MagicMock(), empty_packet)
@@ -88,7 +84,7 @@ class TestHandlePanTiltPacket(TestCase):
         self.assertFalse(result)
 
     def test_handle_pan_tilt_packet_Should_ReturnTrue_When_GivenValidPacket(self):
-        packet = self.create_pan_tilt_packet(1, 1, 1, 1)
+        packet = CameraAPI.create_pan_tilt_packet(bytearray(20), 1, PanDirection.LEFT, 1, TiltDirection.UP)
         result = handle_pan_tilt_packet(MagicMock(), packet)
         self.assertTrue(result)
 
@@ -101,21 +97,26 @@ class TestHandlePanTiltPacket(TestCase):
         type(camera).tilt_speed = tilt_speed
 
         with self.subTest('Drive speed should be set to 0 when given invalid pan speed'):
-            packet = self.create_pan_tilt_packet(34, 1, 2, 1)
+            packet = CameraAPI.create_pan_tilt_packet(bytearray(20), 1, PanDirection.LEFT, 2, TiltDirection.UP)
+            # Forces invalid speed without triggering exception
+            packet.data[3] = 34
+            print(packet.buffer, packet.data.tobytes())
             handle_pan_tilt_packet(camera, packet)
 
             pan_speed.assert_called_with(0)
             tilt_speed.assert_called_with(0)
 
         with self.subTest('Drive speed should be set to 0 when given invalid tilt speed'):
-            packet = self.create_pan_tilt_packet(1, 1, 34, 1)
+            packet = CameraAPI.create_pan_tilt_packet(bytearray(20), 1, PanDirection.LEFT, 1, TiltDirection.UP)
+            # Forces invalid speed without triggering exception
+            packet.data[4] = 34
             handle_pan_tilt_packet(camera, packet)
 
             pan_speed.assert_called_with(0)
             tilt_speed.assert_called_with(0)
 
         with self.subTest('Pan speed should be set to 0 when given stop pan'):
-            packet = self.create_pan_tilt_packet(3, 3, 1, 1)
+            packet = CameraAPI.create_pan_tilt_packet(bytearray(20), 3, PanDirection.NONE, 1, TiltDirection.UP)
             handle_pan_tilt_packet(camera, packet)
 
             pan_speed.assert_called_with(0)
@@ -125,7 +126,7 @@ class TestHandlePanTiltPacket(TestCase):
             self.assertLess(0, tilt_speed.call_args.args[0])
 
         with self.subTest('Tilt speed should be set to 0 when given stop tilt'):
-            packet = self.create_pan_tilt_packet(1, 1, 3, 3)
+            packet = CameraAPI.create_pan_tilt_packet(bytearray(20), 1, PanDirection.LEFT, 3, TiltDirection.NONE)
             handle_pan_tilt_packet(camera, packet)
 
             pan_speed.assert_called()
@@ -140,10 +141,11 @@ class TestHandlePanTiltPacket(TestCase):
 class TestHandleZoomPacket(TestCase):
 
     def create_zoom_packet(self, direction: int, speed: int) -> 'RawViscaPacket':
-        data = bytearray(b'\x01\x04\x07')
-        data.append(direction << 4 | speed)
+        p = RawViscaPacket(1, 0, bytearray(20))
+        p.write_bytes(b'\x01\x04\x07')
+        p.write_data(direction << 4 | speed)
 
-        return RawViscaPacket(1, 0, data)
+        return p
 
     def test_handle_zoom_packet_Should_ReturnFalse_When_GivenInvalidPacket(self):
         empty_packet = create_packet(b'')

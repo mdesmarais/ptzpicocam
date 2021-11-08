@@ -9,45 +9,93 @@ class RawViscaPacket:
     The header contains two addresses : the receiver and the sender.
     The body has a variable length."""
 
-    def __init__(self, receiver_addr: int, sender_addr: int, raw_data: bytearray):
+    def __init__(self, receiver_addr: int, sender_addr: int, buffer: bytearray):
         """Creates a new raw packet.
+
+        The buffer must have a capacity of at least 2 bytes.
         
         :param receiver_addr: address of the receiver
         :param sender_addr: address of the sender
-        :param raw_data: packet data as a bytearray"""
+        :param buffer: a buffer for holding the packet
+        """
         self.receiver_addr = receiver_addr
         self.sender_addr = sender_addr
-        self.raw_data = raw_data
+        self.buffer = buffer
+        self.buffer_view = memoryview(buffer)
+        self.data_size = 0
+
+    def encode(self) -> memoryview:
+        """Writes headers and terminating byte into the buffer and returns it."""
+        self.buffer[0] = (1<<7) | ((self.sender_addr & 0x7) << 4) | (self.receiver_addr & 0x7)
+        self.buffer[1 + self.data_size] = 0xff
+
+        return self.buffer_view[:self.data_size + 2]
+
+    @property
+    def data(self) -> memoryview:
+        """Gets a pointer on the buffer containing the packet data."""
+        return self.buffer_view[1:1 + self.data_size]
 
     @classmethod
-    def decode(cls, stream: BinaryIO) -> Optional['RawViscaPacket']:
+    def decode(cls, buffer: bytearray, stream: BinaryIO) -> Optional['RawViscaPacket']:
         """Decodes a packet from the given stream.
         
         The stream must be readable and contain at least 2 bytes (header + terminator).
-        
+        The given buffer must be large enough for holding the entire packet. If it is not
+        the case then the method will return None.
+
+        :param buffer: a buffer for holding the packet
         :param stream: stream of bytes
-        :return: a new instance of :py:class:`~.RawViscaPacket` representing the packet"""
-        header = int.from_bytes(stream.read(1), 'little')
+        :return: a new instance of :py:class:`~.RawViscaPacket` representing the packet or None if the buffer is too small
+        """
+        header = stream.read(1)[0]
 
         receiver_addr = header & 0x7
         sender_addr = (header >> 4) & 0x7
 
-        packet_data = bytearray()
+        packet = RawViscaPacket(receiver_addr, sender_addr, buffer)
+
+        i = 0
 
         while True:
-            data = stream.read(1)
+            data = stream.read(1)[0]
 
-            if int.from_bytes(data, 'little') == 0xff:
+            if data == 0xff:
                 break
 
-            packet_data += data
+            if not packet.write_data(data):
+                return None
 
-        return RawViscaPacket(receiver_addr, sender_addr, packet_data)
+            i += 1
 
-    def encode(self) -> bytes:
-        """Encodes the packet into bytes.
+        return packet
+
+    def write_data(self, b: int) -> bool:
+        """Writes a byte in the buffer at the next available position.
         
-        :return: bytes representing the packet"""
-        header = (1<<7) | ((self.sender_addr & 0x7) << 4) | (self.receiver_addr & 0x7)
+        If the buffer is full then it will return False.
+        
+        :param b: a byte to write
+        :returns: True if the byte has be written in the buffer, otherwise False
+        """
+        if len(self.buffer) - 2 <= self.data_size:
+            return False
 
-        return int.to_bytes(header, 1, 'little') + bytes(self.raw_data) + b'\xff'
+        self.buffer[1 + self.data_size] = b & 0xff
+        self.data_size += 1
+
+        return True
+
+    def write_bytes(self, data: bytes) -> bool:
+        """Writes bytes in the buffer at the next available position.
+        
+        If the buffer is full then it will return False.
+        
+        :param b: a byte to write
+        :returns: True if all bytes have be written in the buffer, otherwise False
+        """
+        for b in data:
+            if not self.write_data(b):
+                return False
+
+        return True
