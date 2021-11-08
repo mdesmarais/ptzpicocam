@@ -4,11 +4,12 @@ import time
 from threading import Thread
 
 import pybullet as pb
+from ptzpicocam.visca import RawViscaPacket
 from serial import Serial, SerialException
 
-from camera_server import handle_pan_tilt_packet, handle_zoom_packet, process_packet
-from robot_camera import RobotCamera
-from visca import RawViscaPacket
+from ptzsimcam.camera_server import (handle_pan_tilt_packet,
+                                     handle_zoom_packet, process_packet)
+from ptzsimcam.robot_camera import RobotCamera
 
 
 class Simulation:

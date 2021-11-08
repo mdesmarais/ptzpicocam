@@ -5,8 +5,7 @@ import numpy as np
 import pybullet as pb
 from scipy.spatial.transform import Rotation as R
 
-from homogeneous_transform import rot_x, rot_z, translation
-
+from ptzsimcam.homogeneous_transform import rot_x, rot_z, translation
 
 ZOOM_SPEEDS = [0, 1, 2, 5, 7, 10, 15, 20]
 
@@ -33,8 +32,6 @@ class RobotCamera:
         self.camera_orientation = np.array([0.0, 0.0, 1.0])
         self.projection_matrix = compute_projection_matrix(self.ZOOM_FOV_MAX)
         self.current_fov = self.ZOOM_FOV_MAX
-        self.zoom_speed = 0
-        self.zoom_direction = 0
 
         self.first_join_base = translation(np.array([0.0, 0.25, 0.15]))
         self.second_join_base = translation(np.array([0.0, 0.1, 0.4]))
@@ -42,6 +39,7 @@ class RobotCamera:
 
         self.pan_speed = 0.0
         self.tilt_speed = 0.0
+        self.zoom_speed = 0
 
         # Recorded positions, 6 available
         self.positions = [
@@ -126,9 +124,10 @@ class RobotCamera:
         :param refresh_freq: frequency at which this method will be called
         """
         self.render_image()
-        zoom_amount = ZOOM_SPEEDS[self.zoom_speed]
+        zoom_amount = ZOOM_SPEEDS[abs(self.zoom_speed)]
+        zoom_direction = -1 if self.zoom_speed < 0 else 1
 
-        new_fov = self.current_fov + self.zoom_direction * zoom_amount * refresh_freq
+        new_fov = self.current_fov + zoom_direction * zoom_amount * refresh_freq
 
         if new_fov < self.ZOOM_FOV_MIN:
             new_fov = self.ZOOM_FOV_MIN

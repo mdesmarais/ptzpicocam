@@ -1,8 +1,9 @@
 import logging
 from typing import Callable, Dict, List
 
-from robot_camera import RobotCamera
-from visca import RawViscaPacket
+from ptzpicocam.visca import RawViscaPacket
+
+from ptzsimcam.robot_camera import RobotCamera
 
 # Association between a speed value (from 1 to 0x18, it is an index) to a
 # speed in degrees/s
@@ -15,7 +16,7 @@ SPEEDS_LOOKUP: List[float] = [0,
 logger = logging.getLogger(__name__)
 
 
-def handle_memory_packet(camera: 'RobotCamera', packet: 'RawViscaPacket'):
+def handle_memory_packet(camera: 'RobotCamera', packet: 'RawViscaPacket') -> bool:
     """Saves, restores, resets memory points according to the given packet.
     
     The packet should be a Memory command.
@@ -27,14 +28,14 @@ def handle_memory_packet(camera: 'RobotCamera', packet: 'RawViscaPacket'):
     :param packet: a packet containing a Memory command"""
     if len(packet.raw_data) != 5:
         logger.warning(f'Invalid memory packet, expected size of 5, got {len(packet.raw_data)}')
-        return
+        return False
 
     action = packet.raw_data[3]
     position_index = packet.raw_data[4]
 
     if position_index < 0 or position_index > 5:
         logger.warning(f'Invalid position index {position_index}')
-        return
+        return False
 
     if action == 0:
         camera.reset_positions()
@@ -44,20 +45,23 @@ def handle_memory_packet(camera: 'RobotCamera', packet: 'RawViscaPacket'):
         camera.recall_position(position_index)
     else:
         logger.warning(f'Unknown memory command {action}')
+        return False
+
+    return True
 
 
-def handle_pan_tilt_packet(camera: 'RobotCamera', packet: 'RawViscaPacket'):
+def handle_pan_tilt_packet(camera: 'RobotCamera', packet: 'RawViscaPacket') -> bool:
     """Updates camera direction speeds according to the given packet.
     
     The packet should be a PanTiltDrive command.
-    If it is not valid then it will be ignored.
+    If it is not valid then the method will reuurn False.
     If it contains a non valid speed then pan and tilt speed will be set to 0.
     
     :param camera: instance of the camera to update
     :param packet: a packet containing a PanTiltDrive command"""
     if len(packet.raw_data) != 7:
         logger.warning(f'Invalid pan tilt packet, expected size of 7, got {len(packet.raw_data)}')
-        return
+        return False
 
     try:
         pan_speed = SPEEDS_LOOKUP[packet.raw_data[3]]
@@ -85,8 +89,10 @@ def handle_pan_tilt_packet(camera: 'RobotCamera', packet: 'RawViscaPacket'):
 
     camera.drive()
 
+    return True
 
-def handle_zoom_packet(camera: 'RobotCamera', packet: 'RawViscaPacket'):
+
+def handle_zoom_packet(camera: 'RobotCamera', packet: 'RawViscaPacket') -> bool:
     """Updates the camera zoom according to the given packet.
     
     The packet should be a Zoom command.
@@ -97,7 +103,7 @@ def handle_zoom_packet(camera: 'RobotCamera', packet: 'RawViscaPacket'):
     :param packet: a packet containing a Zoom command"""
     if len(packet.raw_data) != 4:
         logger.warning(f'Invalid zoom packet, expected size of 4, got {len(packet.raw_data)}')
-        return
+        return False
 
     zoom_data = packet.raw_data[3]
     direction = (zoom_data >> 4) & 0xf
@@ -105,18 +111,19 @@ def handle_zoom_packet(camera: 'RobotCamera', packet: 'RawViscaPacket'):
 
     if speed < 1 or speed > 7:
         logger.warning(f'Expecting zoom speed between 1 and 7, got {speed}')
-        return
-
-    camera.zoom_speed = speed
+        return False
 
     if direction == 0:
         camera.zoom_speed = 0
     elif direction == 2:
-        camera.zoom_direction = -1
+        camera.zoom_speed = -speed
     elif direction == 3:
-        camera.zoom_direction = 1
+        camera.zoom_speed = speed
     else:
         logger.warning(f'Unknown zoom direction {direction}')
+        return False
+
+    return True
 
 
 def process_packet(camera: 'RobotCamera', packet: 'RawViscaPacket') -> None:
@@ -136,7 +143,7 @@ def process_packet(camera: 'RobotCamera', packet: 'RawViscaPacket') -> None:
 
 
 # Association between the start of a packet with a handler
-PACKET_SIGNATURES: Dict[bytes, Callable[['RobotCamera', 'RawViscaPacket'], None]] = {
+PACKET_SIGNATURES: Dict[bytes, Callable[['RobotCamera', 'RawViscaPacket'], bool]] = {
     b'\x01\x04\x3f': handle_memory_packet,
     b'\x01\x06\x01': handle_pan_tilt_packet,
     b'\x01\x04\x07': handle_zoom_packet
