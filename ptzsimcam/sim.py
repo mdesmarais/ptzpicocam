@@ -122,6 +122,7 @@ def main(args) -> None:
     current_foler = os.path.dirname(__file__)
     robot_camera = pb.loadURDF(os.path.join(current_foler, 'camera.urdf'), flags=pb.URDF_USE_INERTIA_FROM_FILE)
     pb.loadURDF(os.path.join(current_foler, 'wall.urdf'), basePosition=[0.0, 5.0, 0.5])
+    pb.loadURDF(os.path.join(current_foler, 'wall_apside.urdf'), basePosition=[-5.0, 0.0, 0.5])
 
     camera = RobotCamera(robot_camera, 1, 2)
     serial_port = args.serial_port

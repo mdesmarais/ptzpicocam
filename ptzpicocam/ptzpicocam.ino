@@ -3,6 +3,10 @@
 #define ZOOM_PIN A2
 #define ZOOM_LED_PIN 5
 
+#define BTN_POS_0 3
+#define SHORT_PRESS_TIME 1000
+#define TIME_FOR_MEMORY_commande_memory 5 //10 --> 10 secondes
+
 typedef enum PanDirection {
   PAN_LEFT = 1,
   PAN_RIGHT = 2,
@@ -28,6 +32,13 @@ struct Camera {
   uint16_t tiltSpeed;
   ZoomDirection zoomDirection;
   uint8_t zoomSpeed;
+};
+
+struct Bouton{
+  uint8_t pin;
+  unsigned int long timepressed;
+  unsigned int long lastpressed;
+  bool isPress;
 };
 
 typedef struct Joystick {
@@ -57,6 +68,11 @@ uint8_t zoomPacket[] = {
 
 Camera camera;
 Joystick joystick;
+Bouton allbtn[1];
+
+int8_t buttonToCheck = -1;
+volatile int8_t commande_memory = 0;  //0 pas de commande, 1 memory commande, 2 drive commande
+volatile unsigned long start_memory_commande_memory = 0;
 
 void initJoystick() {
   joystick.minVal = 0;
@@ -69,6 +85,13 @@ void initJoystick() {
   joystick.rightLimit = center + threshold;
 }
 
+void isr_Btn1(){
+  if(millis()-allbtn[0].lastpressed>70) {
+    allbtn[0].lastpressed=millis();
+    buttonToCheck = 0;
+  }
+}
+
 void setup() {
   Serial.begin(9600);
   initJoystick();
@@ -78,7 +101,12 @@ void setup() {
   pinMode(ZOOM_PIN, INPUT);
   pinMode(ZOOM_LED_PIN, OUTPUT);
 
-  pinMode(4, INPUT_PULLUP);
+  pinMode(BTN_POS_0,INPUT);
+  allbtn[0].pin=BTN_POS_0;
+  allbtn[0].lastpressed=0;
+  allbtn[0].timepressed=0;
+  allbtn[0].isPress=false;
+  attachInterrupt(digitalPinToInterrupt(BTN_POS_0),isr_Btn1,CHANGE);
 }
 
 void setZoomLed(uint8_t value) {
@@ -86,10 +114,29 @@ void setZoomLed(uint8_t value) {
 }
 
 void loop() {
-  /*if (digitalRead(4) == HIGH) {
-    Serial.write(memoryPacket, 7);
-  }*/
+  
+  if (buttonToCheck != -1) {
+    if(allbtn[buttonToCheck].isPress == false) {
+      allbtn[buttonToCheck].isPress = true;
+      allbtn[buttonToCheck].timepressed = millis();   
+    } else {
+      if(millis()-allbtn[buttonToCheck].timepressed<SHORT_PRESS_TIME) {
+        //Short press 
+        memoryPacket[4] = 0x02;
+        memoryPacket[5] = 0x00;
+        commande_memory=2;
+        start_memory_commande_memory = millis();
+      } else {
+        //Long press
+        memoryPacket[4] = 0x01;
+        memoryPacket[5] = 0x00;
+        commande_memory=1;
+      }
+      allbtn[buttonToCheck].isPress=false;
 
+    }
+    buttonToCheck = -1;
+  }
   joystick.x = analogRead(JOYX_PIN);
   joystick.y = analogRead(JOYY_PIN);
   joystick.zoom = analogRead(ZOOM_PIN);
@@ -142,10 +189,17 @@ void loop() {
   drivePacket[7] = camera.tiltDirection;
 
   zoomPacket[4] = (camera.zoomDirection << 4) | camera.zoomSpeed;
-
-  Serial.write(drivePacket, 9);
-  Serial.write(zoomPacket, 6);
-
+  if((commande_memory > 0)) {
+    Serial.write(memoryPacket, 7);  
+    if(commande_memory==1) {
+      commande_memory=0; 
+    } else if((millis()-start_memory_commande_memory) >TIME_FOR_MEMORY_commande_memory*1000) {
+      commande_memory=0;  
+    }
+  } else {
+    Serial.write(drivePacket, 9);
+    Serial.write(zoomPacket, 6);
+  }
   /*Serial.print(camera.panSpeed);
   Serial.print(' ');
   Serial.print(camera.tiltSpeed);
