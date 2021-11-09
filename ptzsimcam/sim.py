@@ -7,8 +7,7 @@ import pybullet as pb
 from ptzpicocam.visca import RawViscaPacket
 from serial import Serial, SerialException
 
-from ptzsimcam.camera_server import (handle_pan_tilt_packet,
-                                     handle_zoom_packet, process_packet)
+from ptzsimcam.camera_server import SPEEDS_LOOKUP, process_packet
 from ptzsimcam.robot_camera import RobotCamera
 
 
@@ -38,41 +37,29 @@ class Simulation:
         if pan_vel < 0:
             pan_dir = 1
         elif pan_vel > 0:
-            pan_dir = 2
+            pan_dir = -1
         else:
-            pan_dir = 3
+            pan_dir = 0
 
         if tilt_vel < 0:
             tilt_dir = 1
         elif tilt_vel > 0:
-            tilt_dir = 2
+            tilt_dir = -1
         else:
-            tilt_dir = 3
+            tilt_dir = 0
 
         if zoom_vel < 0:
-            zoom_dir = 3
+            zoom_dir = 1
         elif zoom_vel > 0:
-            zoom_dir = 2
+            zoom_dir = -1
         else:
             zoom_dir = 0
-            zoom_vel = 1
 
-        zoom_vel = max(1, abs(int(zoom_vel)))
+        self.camera.pan_speed = SPEEDS_LOOKUP[abs(int(pan_vel))] * pan_dir
+        self.camera.tilt_speed = SPEEDS_LOOKUP[abs(int(tilt_vel))] * tilt_dir
+        self.camera.drive()
 
-        data = bytearray(b'\x01\x06\x01')
-        data.append(abs(int(pan_vel)))
-        data.append(abs(int(tilt_vel)))
-        data.append(pan_dir)
-        data.append(tilt_dir)
-
-        p = RawViscaPacket(1, 0, data)
-        handle_pan_tilt_packet(self.camera, p)
-
-        data = bytearray(b'\x01\x04\x07\x00')
-        data[3] = (zoom_dir << 4) | zoom_vel
-
-        p = RawViscaPacket(1, 0, data)
-        handle_zoom_packet(self.camera, p)
+        self.camera.zoom_speed = abs(int(zoom_vel)) * zoom_dir
 
     def run(self):
         """Simulation loop."""
@@ -107,8 +94,15 @@ def serial_control_thread(serial_port: str, camera: 'RobotCamera') -> None:
         print(f'Unable to connect to {serial_port}')
         return
 
+    buffer = bytearray(16)
+
     while True:
-        process_packet(camera, RawViscaPacket.decode(conn))
+        p = RawViscaPacket.decode(buffer, conn)
+
+        if p is None:
+            continue
+
+        process_packet(camera, p)
 
 
 def main(args) -> None:
