@@ -1,3 +1,5 @@
+import time
+
 from machine import ADC, UART, Pin, Timer
 
 try:
@@ -5,14 +7,67 @@ try:
 except ImportError:
     from camera import *
 
-TESTING = False
+TESTING = False # Should always be False when running on the device target
+
+BTN1_PIN = Pin(10, Pin.IN)
 
 JOYX_PIN = ADC(Pin(26))
 JOYY_PIN = ADC(Pin(27))
 ZOOM_PIN = ADC(Pin(28))
 
 
+class Button:
+
+    """A dummy button that supports short and press long detection."""
+
+    def __init__(self):
+        self.last_pressed_time = 0
+        self.time_pressed = 0
+        self.triggered_flag = False # Updated by an isr
+        self.pressed = False
+
+    def isr(self):
+        """Called when a button pin detects a change (falling or rising edge).
+        
+        The isr prevents a rebound by saving the timestamp of the last call.
+        """
+        t = time.ticks_ms()
+
+        if t - self.last_pressed_time > 25:
+            self.last_pressed_time = t
+            self.triggered_flag = True
+
+    @property
+    def press_type(self) -> 'ButtonPressType':
+        """Gets the press type."""
+        if self.pressed:
+            # @TODO 1000 may be adapted
+            if time.ticks_ms() - self.time_pressed < 1000:
+                pt = ButtonPressType.SHORT_PRESS
+            else:
+                pt = ButtonPressType.LONG_PRESS
+            self.pressed = False
+        else:
+            self.pressed = True
+            self.time_pressed = time.ticks_ms()
+
+            pt = ButtonPressType.NONE
+
+        return pt
+
+
+class ButtonPressType(IntEnum):
+
+    """Reprents a button press type."""
+
+    NONE = 0
+    SHORT_PRESS = 1
+    LONG_PRESS = 2
+
+
 class Camera:
+
+    """Structure containing informations to send to a camera."""
 
     def __init__(self) -> None:
         self.pan_speed = 1
@@ -27,7 +82,15 @@ class Camera:
 
 class Joystick:
 
+    """Structure containing informations about a 3-axes joystick."""
+
     def __init__(self, min_adc_val: int, max_adc_val: int, deadzone: int) -> None:
+        """Creates a new joystick structure.
+        
+        :param min_adc_val: minimal value returned by the device ADC
+        :param max_adc_val: maximal value returned by the device ADC
+        :param deadzone: deadzone in percentage based on the max_adc_val param
+        """
         self.x = 0
         self.y = 0
         self.zoom = 0
@@ -39,6 +102,10 @@ class Joystick:
         self.read_joystick_flag = False
 
     def compute_bounds(self) -> None:
+        """Computes left and right bounds according to the deadzone.
+        
+        Attributes :py:attr:`~.Joystick.left_limit` and :py:attr:`~.Joystick.right_limit` will be set.
+        """
         center = self.max_adc_val // 2
         threshold = center * joystick.deadzone // 100
 
@@ -47,6 +114,15 @@ class Joystick:
 
 
 def convert_joyx_to_pan(joystick: 'Joystick', camera: 'Camera') -> bool:
+    """Converts a joystick axe value into a camera value.
+    
+    Attributes :py:attr:`~.Camera.pan_dir` and :py:attr:`~.Camera.pan_speed`
+    will be modified.
+    
+    :param joystick: instance of the joystick containing the value to convert
+    :param camera: instance of the camera to update
+    :returns: True if the joystick is in the deadzone, otherwise False
+    """
     in_deadzone = False
 
     if joystick.x < joystick.left_limit:
@@ -64,6 +140,15 @@ def convert_joyx_to_pan(joystick: 'Joystick', camera: 'Camera') -> bool:
 
 
 def convert_joyy_to_tilt(joystick: 'Joystick', camera: 'Camera') -> bool:
+    """Converts a joystick axe value into a camera value.
+    
+    Attributes :py:attr:`~.Camera.tilt_dir` and :py:attr:`~.Camera.tilt_speed`
+    will be modified.
+    
+    :param joystick: instance of the joystick containing the value to convert
+    :param camera: instance of the camera to update
+    :returns: True if the joystick is in the deadzone, otherwise False
+    """
     in_deadzone = False
 
     if joystick.y < joystick.left_limit:
@@ -81,6 +166,15 @@ def convert_joyy_to_tilt(joystick: 'Joystick', camera: 'Camera') -> bool:
 
 
 def convert_zoom(joystick: 'Joystick', camera: 'Camera') -> bool:
+    """Converts a joystick axe value into a camera value.
+    
+    Attributes :py:attr:`~.Camera.zoom_dir` and :py:attr:`~.Camera.zoom_speed`
+    will be modified.
+    
+    :param joystick: instance of the joystick containing the value to convert
+    :param camera: instance of the camera to update
+    :returns: True if the joystick is in the deadzone, otherwise False
+    """
     in_deadzone = False
 
     if joystick.zoom < joystick.left_limit:
@@ -101,14 +195,32 @@ def convert_range(value: int, old_min: int, old_max: int, new_min: int, new_max:
     return ((value - old_min) // (old_max - old_min)) * (new_max - new_min) + new_min
 
 
-def loop(joystick: 'Joystick', camera: 'Camera', uart):
+def loop(joystick: 'Joystick', camera: 'Camera', uart, btn1: 'Button') -> None:
+    """Main loop.
+    
+    :param joystick: instance of a joystick
+    :param camera: instance of a camera to control
+    :param uart: uart for sending packets
+    :param btn1: instance of a button
+    """
     buffer = bytearray(16)
     ZOOM_LED_PIN = Pin(5, Pin.OUT)
 
     while True:
+        if btn1.triggered_flag:
+            btn1.triggered_flag = False
+            
+            press_type = btn1.press_type
+
+            if press_type == ButtonPressType.SHORT_PRESS:
+                print('short')
+            elif press_type == ButtonPressType.LONG_PRESS:
+                print('long')
+
         if joystick.read_joystick_flag:
             joystick.read_joystick_flag = False
 
+            # Reads joystick values from ADC
             joystick.x = JOYX_PIN.read_u16()
             joystick.y = JOYY_PIN.read_u16()
             joystick.zoom = ZOOM_PIN.read_u16()
@@ -119,12 +231,15 @@ def loop(joystick: 'Joystick', camera: 'Camera', uart):
 
             if zoom_in_deadzone:
                 ZOOM_LED_PIN.on()
+                zoom_packet = CameraAPI.create_zoom_packet(buffer, camera.zoom_speed, camera.zoom_dir)
             else:
                 ZOOM_LED_PIN.off()
+                zoom_packet = CameraAPI.create_stop_zoom_packet(buffer)
 
-            #pan_tilt_packet = CameraAPI.create_pan_tilt_packet(buffer, camera.pan_speed, camera.pan_dir, camera.tilt_speed, camera.tilt_dir)
-            #uart.write(pan_tilt_packet.encode())
-            print(camera.pan_speed, zoom_in_deadzone)
+            uart.write(zoom_packet.encode())
+
+            pan_tilt_packet = CameraAPI.create_pan_tilt_packet(buffer, camera.pan_speed, camera.pan_dir, camera.tilt_speed, camera.tilt_dir)
+            uart.write(pan_tilt_packet.encode())
 
 
 def timer_isr(joystick: 'Joystick'):
@@ -142,5 +257,8 @@ if __name__ == '__main__':
 
     uart1 = UART(1, baudrate=9600, tx=Pin(4), rx=Pin(5))
 
+    btn1 = Button()
+    BTN1_PIN.irq(lambda p: btn1.isr())
+
     if not TESTING:
-        loop(joystick, camera, uart1)
+        loop(joystick, camera, uart1, btn1)
