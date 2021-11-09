@@ -20,6 +20,9 @@ class Button:
 
     """A dummy button that supports short and press long detection."""
 
+    LONG_PRESS_TIME = 1000 # Should be adapted
+    REBOUND_TIME = 25
+
     def __init__(self):
         self.last_pressed_time = 0
         self.time_pressed = 0
@@ -33,7 +36,7 @@ class Button:
         """
         t = time.ticks_ms()
 
-        if t - self.last_pressed_time > 25:
+        if t - self.last_pressed_time > self.REBOUND_TIME:
             self.last_pressed_time = t
             self.triggered_flag = True
 
@@ -41,8 +44,7 @@ class Button:
     def press_type(self) -> 'ButtonPressType':
         """Gets the press type."""
         if self.pressed:
-            # @TODO 1000 may be adapted
-            if time.ticks_ms() - self.time_pressed < 1000:
+            if time.ticks_ms() - self.time_pressed < self.LONG_PRESS_TIME:
                 pt = ButtonPressType.SHORT_PRESS
             else:
                 pt = ButtonPressType.LONG_PRESS
@@ -107,7 +109,7 @@ class Joystick:
         Attributes :py:attr:`~.Joystick.left_limit` and :py:attr:`~.Joystick.right_limit` will be set.
         """
         center = self.max_adc_val // 2
-        threshold = center * joystick.deadzone // 100
+        threshold = center * self.deadzone // 100
 
         self.left_limit = center - threshold
         self.right_limit = center + threshold
