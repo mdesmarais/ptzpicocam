@@ -1,175 +1,146 @@
-import camera
-from machine import Pin, Timer, ADC
-import time
-from enum import IntEnum
+from machine import ADC, UART, Pin, Timer
 
-global flag_read_pos_JoyStick
+try:
+    from ptzpicocam.camera import *
+except ImportError:
+    from camera import *
 
-global posX
-global posY
-global posZ
+TESTING = False
 
-ana_potar = 28
-ana_vert = 27
-ana_hor = 26
-
-joyX_pin = ADC(Pin(ana_hor))
-joyY_pin = ADC(Pin(ana_vert))
-poten_pin = ADC(Pin(ana_potar))
-
-timer_ana = Timer()
-
-flag_read_pos_JoyStick = False
-
-global nPalierX
-global nPalierY
-global nPalierZ
-
-posX = 0
-posY = 0
-posZ = 0
-
-minX = 0
-maxX = 65535
-minY = 0
-maxY = 65535
-minZ = 0
-maxZ = 65535
-
-nPalierX = 47
-nPalierY = 45
-nPalierZ = 15
-
-# Build threshold list
-# Threshold list for Z
-global thres_Z
-thres_Z = []
-thres_Z.append(minZ)
-for i in range(1, nPalierZ):
-    thres_Z.append(int(i / nPalierZ * (maxZ - minZ) + minZ))
-thres_Z.append(maxZ)
-
-# Threshold list for Y
-global thres_Y
-thres_Y = []  # Thres Tilt
-thres_Y.append(minY)
-for i in range(1, nPalierY):
-    thres_Y.append(int(i / nPalierY * (maxY - minY) + minY))
-thres_Y.append(maxY)
-
-# Threshold list for X
-global thres_X
-thres_X = []  # Thres Pan
-thres_X.append(minX)
-for i in range(1, nPalierX):
-    thres_X.append(int(i / nPalierX * (maxX - minX) + minX))
-thres_X.append(maxX)
+JOYX_PIN = ADC(Pin(26))
+JOYY_PIN = ADC(Pin(27))
+ZOOM_PIN = ADC(Pin(28))
 
 
-def timer_read_ana(timer_ana):
-    global posY
-    global posX
-    global posZ
-    global flag_read_pos_JoyStick
+class Camera:
 
-    posX = joyX_pin.read_u16()
-    posY = joyY_pin.read_u16()
-    posZ = poten_pin.read_u16()
-    flag_read_pos_JoyStick = True
+    def __init__(self) -> None:
+        self.pan_speed = 1
+        self.pan_dir = PanDirection.NONE
 
-timer_ana.init(freq=5, mode=Timer.PERIODIC, callback=timer_read_ana)
+        self.tilt_speed = 1
+        self.tilt_dir = PanDirection.NONE
 
-def calc_Pan_Com(positionX):
-    if thres_X[int(nPalierX / 2)] <= positionX and positionX <= thres_X[int(nPalierX / 2) + 1]:
-        # No move X
-        dirX = camera.CameraAPI.PanDirection(1)
-        speedX = 0
+        self.zoom_speed = 1
+        self.zoom_dir = ZoomDirection.NONE
+
+
+class Joystick:
+
+    def __init__(self, min_adc_val: int, max_adc_val: int, deadzone: int) -> None:
+        self.x = 0
+        self.y = 0
+        self.zoom = 0
+        self.min_adc_val = min_adc_val
+        self.max_adc_val = max_adc_val
+        self.left_limit = 0
+        self.right_limit = 0
+        self.deadzone = deadzone
+        self.read_joystick_flag = False
+
+    def compute_bounds(self) -> None:
+        center = self.max_adc_val // 2
+        threshold = center * joystick.deadzone // 100
+
+        self.left_limit = center - threshold
+        self.right_limit = center + threshold
+
+
+def convert_joyx_to_pan(joystick: 'Joystick', camera: 'Camera') -> bool:
+    in_deadzone = False
+
+    if joystick.x < joystick.left_limit:
+        camera.pan_speed = convert_range(abs(joystick.x - joystick.left_limit), joystick.min_adc_val, joystick.left_limit, 1, 0x18)
+        camera.pan_dir = PanDirection.RIGHT
+    elif joystick.x > joystick.right_limit:
+        camera.pan_speed = convert_range(joystick.x, joystick.right_limit, joystick.max_adc_val, 1, 0x18)
+        camera.pan_dir = PanDirection.LEFT
     else:
-        # Set Speed X
-        if positionX <= thres_X[int(nPalierX / 2)]:
-            # Right Mvt
-            dirX = camera.CameraAPI.PanDirection(2)
-            r = 0
-            for i in range(0, int(nPalierX / 2) + 1):
-                if positionX <= thres_X[i]:
-                    r = i
-                    break
-            speedX = int(nPalierX / 2) + 1 - r
-        else:
-            # Left Mvt
-            dirX = camera.CameraAPI.PanDirection(1)
-            r = nPalierX + 1
-            for i in range(int(nPalierX / 2) + 2, nPalierX + 1):
-                if positionX < thres_X[i]:
-                    print("break")
-                    r = i
-                    break
-            speedX = r - int(nPalierX / 2) - 1
-    # print("Dir X ",dirX,"  Speed X ",speedX)
-    return dirX, speedX
+        camera.pan_speed = 1
+        camera.pan_dir = PanDirection.NONE
+        in_deadzone = True
 
-def calc_Tilt_Com(positionY):
-    if thres_Y[int(nPalierY / 2)] <= positionY and positionY <= thres_Y[int(nPalierY / 2) + 1]:
-        # No move Y
-        dirY = camera.CameraAPI.TiltDirection(1)
-        speedY = 0
+    return in_deadzone
+
+
+def convert_joyy_to_tilt(joystick: 'Joystick', camera: 'Camera') -> bool:
+    in_deadzone = False
+
+    if joystick.y < joystick.left_limit:
+        camera.tilt_speed = convert_range(abs(joystick.y - joystick.left_limit), joystick.min_adc_val, joystick.left_limit, 1, 0x17)
+        camera.tilt_dir = TiltDirection.UP
+    elif joystick.y > joystick.right_limit:
+        camera.tilt_speed = convert_range(joystick.y, joystick.right_limit, joystick.max_adc_val, 1, 0x17)
+        camera.tilt_dir = TiltDirection.DOWN
     else:
-        # Set Speed Y
-        if positionY <= thres_Y[int(nPalierY / 2)]:
-            # Down Mvt
-            dirY = camera.CameraAPI.TiltDirection(2)
-            r = 0
-            for i in range(0, int(nPalierY / 2) + 1):
-                if positionY <= thres_Y[i]:
-                    r = i
-                    break
-            speedY = int(nPalierY / 2) + 1 - r
-        else:
-            # Uo Mvt
-            dirY = camera.CameraAPI.TiltDirection(1)
-            r = nPalierY + 1
-            for i in range(int(nPalierY / 2) + 2, nPalierY + 1):
-                if positionY < thres_Y[i]:
-                    r = i
-                    break
-            speedY = r - int(nPalierY / 2) - 1
-    # print("Dir  Y ",dirY,"  Speed Y ",speedY)
-    return dirY, speedY
+        camera.tilt_speed = 1
+        camera.tilt_dir = TiltDirection.NONE
+        in_deadzone = True
 
-def calc_Zoom_Com(positionVal):
-    if thres_Z[int(nPalierZ / 2)] <= positionVal and positionVal <= thres_Z[int(nPalierZ / 2) + 1]:
-        # Stop Zoom
-        camera.cameraAPI.stopZoom()
+    return in_deadzone
+
+
+def convert_zoom(joystick: 'Joystick', camera: 'Camera') -> bool:
+    in_deadzone = False
+
+    if joystick.zoom < joystick.left_limit:
+        camera.zoom_speed = convert_range(abs(joystick.zoom - joystick.left_limit), joystick.min_adc_val, joystick.left_limit, 1, 7)
+        camera.zoom_dir = ZoomDirection.WIDE
+    elif joystick.zoom > joystick.right_limit:
+        camera.zoom_speed = convert_range(joystick.zoom, joystick.right_limit, joystick.max_adc_val, 1, 7)
+        camera.zoom_dir = ZoomDirection.TELE
     else:
-        # Set Zoom
-        if positionVal <= thres_Z[int(nPalierZ / 2)]:
-            # Wide Mvt
-            dirZ = camera.cameraAPI.ZoomDirection(3)
-            r = 0
-            for i in range(0, int(nPalierZ / 2) + 1):
-                if positionVal <= thres_Z[i]:
-                    r = i
-                    break
-            speedZ = int(nPalierZ / 2) - r
-        else:
-            # Tele Mvt
-            dirZ = camera.cameraAPI.ZoomDirection(2)
-            r = nPalierZ + 1
-            for i in range(int(nPalierZ / 2), nPalierZ + 1):
-                if positionVal < thres_Z[i]:
-                    r = i
-                    break
-            speedZ = r - int(nPalierZ / 2 + 2)
-        camera.cameraAPI.setZoom(speedZ,dirZ)
+        camera.zoom_speed = 1
+        camera.zoom_dir = ZoomDirection.NONE
+        in_deadzone = True
 
-def convert_joystick_values(positionX, positionY, positionZ):
-    calc_Zoom_Com(positionZ)
-    panDir, panSpeed = calc_Pan_Com(positionX)  # x
-    tiltDir, tiltSpeed = calc_Tilt_Com(positionY)  # y
-    # setTiltPan(tiltDir,tiltSpeed,panDir,panSpeed)
+    return in_deadzone
 
-def fct():
+
+def convert_range(value: int, old_min: int, old_max: int, new_min: int, new_max: int) -> int:
+    return ((value - old_min) // (old_max - old_min)) * (new_max - new_min) + new_min
+
+
+def loop(joystick: 'Joystick', camera: 'Camera', uart):
+    buffer = bytearray(16)
+    ZOOM_LED_PIN = Pin(5, Pin.OUT)
+
     while True:
-        time.sleep(1)
-        if flag_read_pos_JoyStick == True:
-            convert_joystick_values(posX, posY, posZ)
+        if joystick.read_joystick_flag:
+            joystick.read_joystick_flag = False
+
+            joystick.x = JOYX_PIN.read_u16()
+            joystick.y = JOYY_PIN.read_u16()
+            joystick.zoom = ZOOM_PIN.read_u16()
+
+            convert_joyx_to_pan(joystick, camera)
+            convert_joyy_to_tilt(joystick, camera)
+            zoom_in_deadzone = convert_zoom(joystick, camera)
+
+            if zoom_in_deadzone:
+                ZOOM_LED_PIN.on()
+            else:
+                ZOOM_LED_PIN.off()
+
+            #pan_tilt_packet = CameraAPI.create_pan_tilt_packet(buffer, camera.pan_speed, camera.pan_dir, camera.tilt_speed, camera.tilt_dir)
+            #uart.write(pan_tilt_packet.encode())
+            print(camera.pan_speed, zoom_in_deadzone)
+
+
+def timer_isr(joystick: 'Joystick'):
+    joystick.read_joystick_flag = True
+
+
+if __name__ == '__main__':
+    camera = Camera()
+
+    joystick = Joystick(0, 0xffff, 5)
+    joystick.compute_bounds()
+
+    timer0 = Timer()
+    timer0.init(freq=30, mode=Timer.PERIODIC, callback=lambda t: timer_isr(joystick))
+
+    uart1 = UART(1, baudrate=9600, tx=Pin(4), rx=Pin(5))
+
+    if not TESTING:
+        loop(joystick, camera, uart1)
