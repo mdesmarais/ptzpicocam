@@ -137,7 +137,7 @@ def process_packet(camera: 'RobotCamera', packet: 'RawViscaPacket') -> None:
     :param camera: instance of the camera to update
     :param packet: packet to handle
     """
-    packet_data = packet.data
+    packet_data = packet.data.tobytes()
     for packet_signature, packet_handler in PACKET_SIGNATURES.items():
         if packet_data.startswith(packet_signature):
             packet_handler(camera, packet)
