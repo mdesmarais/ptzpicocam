@@ -1,4 +1,7 @@
-from typing import BinaryIO, Optional
+try:
+    from typing import BinaryIO, Optional
+except ImportError:
+    from utyping import BinaryIO, Optional
 
 
 class RawViscaPacket:

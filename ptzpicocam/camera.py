@@ -1,4 +1,7 @@
-from enum import IntEnum
+try:
+    from enum import IntEnum
+except ImportError:
+    from uenum import IntEnum
 
 from ptzpicocam.visca import RawViscaPacket
 
@@ -180,5 +183,6 @@ class ZoomDirection(IntEnum):
     TELE = FORWARD
     WIDE = BACKWARD"""
 
+    NONE = 0
     TELE = 2
     WIDE = 3
