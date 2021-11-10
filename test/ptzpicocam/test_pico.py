@@ -3,11 +3,7 @@ import time
 from unittest import TestCase
 from unittest.mock import MagicMock
 
-try:
-    from ptzpicocam.camera import *
-except ImportError:
-    from camera import *
-#from ptzpicocam.camera import PanDirection, TiltDirection, ZoomDirection
+from ptzpicocam.camera import PanDirection, TiltDirection, ZoomDirection
 
 sys.modules['machine'] = MagicMock()
 from ptzpicocam.pico import (Button, ButtonPressType, Camera, Joystick,

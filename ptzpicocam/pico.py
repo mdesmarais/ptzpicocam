@@ -1,3 +1,4 @@
+"""Code for controlling a PTZ camera through the UART with a Raspberry PI Pico."""
 import time
 
 from machine import ADC, UART, Pin, Timer
@@ -7,8 +8,6 @@ try:
 except ImportError:
     from camera import *
 
-TESTING = False # Should always be False when running on the device target
-
 BTN1_PIN = Pin(10, Pin.IN)
 BTN2_PIN = Pin(11, Pin.IN)
 BTN3_PIN = Pin(12, Pin.IN)
@@ -16,6 +15,8 @@ BTN3_PIN = Pin(12, Pin.IN)
 JOYX_PIN = ADC(Pin(26))
 JOYY_PIN = ADC(Pin(27))
 ZOOM_PIN = ADC(Pin(28))
+
+TIME_FOR_MEMORY_COMMAND_MEMORY = 5000 # Required Ms before sending again drive packets
 
 
 class Button:
@@ -25,12 +26,16 @@ class Button:
     LONG_PRESS_TIME = 1000 # Should be adapted
     REBOUND_TIME = 25
     
-    def __init__(self,idx):
+    def __init__(self, position_index: int):
+        """Creates a new button.
+        
+        :param position_index: associated memory position to the button
+        """
         self.last_pressed_time = 0
         self.time_pressed = 0
         self.triggered_flag = False # Updated by an isr
         self.pressed = False
-        self.index = idx
+        self.index = position_index
 
     def isr(self):
         """Called when a button pin detects a change (falling or rising edge).
@@ -203,32 +208,31 @@ def convert_range(value: int, old_min: int, old_max: int, new_min: int, new_max:
     return ((value - old_min) // (old_max - old_min)) * (new_max - new_min) + new_min
 
 
-def loop(joystick: 'Joystick', camera: 'Camera', uart, btn_list: 'list[Button]') -> None:
+def loop(joystick: 'Joystick', camera: 'Camera', uart, buttons: 'List[Button]') -> None:
     """Main loop.
     
     :param joystick: instance of a joystick
     :param camera: instance of a camera to control
     :param uart: uart for sending packets
-    :param btn1: instance of a button
+    :param buttons: list of buttons for controlling positions
     """
     buffer = bytearray(16)
     ZOOM_LED_PIN = Pin(5, Pin.OUT)
-    memoryCommandTime = 0
-    TIME_FOR_MEMORY_COMMAND_MEMORY = 5
+
+    # Last time a memory packet has been sent
+    memory_command_time = 0
 
     while True:
-        for btn in btn_list:
+        for btn in buttons:
             if btn.triggered_flag:
                 btn.triggered_flag = False
                 
                 press_type = btn.press_type
 
                 if press_type == ButtonPressType.SHORT_PRESS:
-                    print('short')
                     camera.memory_index = btn.index
                     camera.memory_command = MemoryAction.RECALL
                 elif press_type == ButtonPressType.LONG_PRESS:
-                    print('long')
                     camera.memory_index = btn.index
                     camera.memory_command = MemoryAction.SET
             
@@ -253,18 +257,22 @@ def loop(joystick: 'Joystick', camera: 'Camera', uart, btn_list: 'list[Button]')
 
 
             if camera.memory_command != MemoryAction.NONE:
-                if memoryCommandTime > 0:
-                    if time.time() - memoryCommandTime > TIME_FOR_MEMORY_COMMAND_MEMORY * 1000:
+                if memory_command_time > 0:
+                    # Wait some time to be sure the camera has the time to perform the operation
+                    if time.ticks_ms() - memory_command_time > TIME_FOR_MEMORY_COMMAND_MEMORY:
                         camera.memory_command = MemoryAction.NONE
-                        memoryCommandTime = 0
+                        memory_command_time = 0
                 else:
-                    memoryCommandTime = time.time()
+                    memory_command_time = time.ticks_ms()
+
                     if camera.memory_command == MemoryAction.RECALL:
                         memory_packet = CameraAPI.create_recall_position_packet(buffer,camera.memory_index)
                     else:
-                         memory_packet = CameraAPI.create_set_position_packet(buffer,camera.memory_index)
+                        memory_packet = CameraAPI.create_set_position_packet(buffer,camera.memory_index)
+
                     uart.write(memory_packet.encode())
             else:
+                # If no memory packet to send then we can resume drive and zoom packets sending
                 uart.write(zoom_packet.encode())
 
                 pan_tilt_packet = CameraAPI.create_pan_tilt_packet(buffer, camera.pan_speed, camera.pan_dir, camera.tilt_speed, camera.tilt_dir)
@@ -285,8 +293,6 @@ if __name__ == '__main__':
     timer0.init(freq=30, mode=Timer.PERIODIC, callback=lambda t: timer_isr(joystick))
 
     uart1 = UART(1, baudrate=9600, tx=Pin(4), rx=Pin(5))
-
-    btn_list = [3]
     
     btn1 = Button(0)
     btn2 = Button(1)
@@ -295,10 +301,7 @@ if __name__ == '__main__':
     BTN1_PIN.irq(lambda p: btn1.isr())
     BTN2_PIN.irq(lambda p: btn2.isr())
     BTN3_PIN.irq(lambda p: btn3.isr())
-    
-    btn_list[0] = btn1
-    btn_list[1] = btn2
-    btn_list[2] = btn3
 
-    if not TESTING:
-        loop(joystick, camera, uart1, btn_list)
+    buttons = [btn1, btn2, btn3]
+
+    loop(joystick, camera, uart1, buttons)
