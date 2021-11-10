@@ -9,3 +9,7 @@ env/
 cov.xml
 
 *.bat
+build/
+dist/
+*.egg-info/
+.tox/
