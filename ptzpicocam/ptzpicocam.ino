@@ -4,8 +4,9 @@
 #define ZOOM_LED_PIN 5
 
 #define BTN_POS_0 3
-#define SHORT_PRESS_TIME 1000
-#define TIME_FOR_MEMORY_commande_memory 5 //10 --> 10 secondes
+
+#define SHORT_PRESS_TIME 1000 // Limit in Ms to decide if a press is short or long
+#define TIME_FOR_MEMORY_commande_memory 5000 // Required Ms before sending again drive packets
 
 typedef enum MemoryCommand {
   MEMORY_RESET = 0,
@@ -59,6 +60,7 @@ typedef struct Joystick {
   uint8_t deadzone;
 } Joystick;
 
+// Packets will be modified in loop
 uint8_t drivePacket[] = {
   0x81, 0x01, 0x06, 0x01,
   0x0, 0x0, 0x00, 0x00, 0xff
@@ -77,9 +79,9 @@ Camera camera;
 Joystick joystick;
 Bouton allbtn[1];
 
-volatile int8_t buttonToCheck = -1;
+volatile int8_t buttonToCheck = -1; // Will be modified by buttons irs
 MemoryCommand memoryCommand = MEMORY_NONE;
-uint32_t memoryCommandTime = 0;
+uint32_t memoryCommandTime = 0; // Last time in ms when a memory packet has been sent
 
 void initJoystick() {
   joystick.minVal = 0;
@@ -93,6 +95,7 @@ void initJoystick() {
 }
 
 void isr_Btn1(){
+  // Prevents rebound
   if(millis()-allbtn[0].lastpressed>70) {
     allbtn[0].lastpressed=millis();
     buttonToCheck = 0;
@@ -194,7 +197,7 @@ void loop() {
 
   if (memoryCommand != MEMORY_NONE) {
     if (memoryCommandTime > 0) {
-      if ((millis()-memoryCommandTime) >TIME_FOR_MEMORY_commande_memory*1000) {
+      if ((millis()-memoryCommandTime) >TIME_FOR_MEMORY_commande_memory) {
         memoryCommand = MEMORY_NONE;
         memoryCommandTime = 0;
       }

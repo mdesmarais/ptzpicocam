@@ -1,3 +1,4 @@
+"""Defines functions for applying transformations on matrices."""
 import math
 
 import numpy as np

@@ -1,3 +1,4 @@
+"""Defines a camera robot based on the EVI-D100 by Sony for pybullet."""
 import math
 from typing import cast
 
@@ -8,6 +9,7 @@ from scipy.spatial.transform import Rotation as R
 from ptzsimcam.homogeneous_transform import rot_x, rot_z, translation
 
 ZOOM_SPEEDS = [0, 1, 2, 5, 7, 10, 15, 20]
+"""Association between a visca zoom speed (0, 7) and a zoom speed in degrees/s."""
 
 class RobotCamera:
 

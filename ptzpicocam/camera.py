@@ -1,3 +1,4 @@
+"""Defines API for creating VISCA packets and enumerations."""
 try:
     from enum import IntEnum
 except ImportError:

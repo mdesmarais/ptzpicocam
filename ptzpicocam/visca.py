@@ -1,3 +1,4 @@
+"""Defines the RawViscaPacket for manipulating VISCA packets."""
 try:
     from typing import BinaryIO, Optional
 except ImportError:

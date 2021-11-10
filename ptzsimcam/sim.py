@@ -1,3 +1,4 @@
+"""Creates a pybullet simulation for a ptz camera."""
 import argparse
 import os
 import time

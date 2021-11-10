@@ -1,3 +1,4 @@
+"""Defines functions for handling incoming VISCA packets."""
 import logging
 from typing import Callable, Dict, List
 
@@ -5,13 +6,12 @@ from ptzpicocam.visca import RawViscaPacket
 
 from ptzsimcam.robot_camera import RobotCamera
 
-# Association between a speed value (from 1 to 0x18, it is an index) to a
-# speed in degrees/s
 SPEEDS_LOOKUP: List[float] = [0,
     1.3, 1.7, 2.2, 3.2, 5.4, 11, 16, 21,
     27, 31, 35, 40, 42, 44, 46, 48,
     50, 79, 81, 83, 85, 87, 90, 100
 ]
+"""Association between a speed value (from 1 to 0x18, it is an index) to a speed in degrees/s."""
 
 logger = logging.getLogger(__name__)
 
@@ -146,9 +146,9 @@ def process_packet(camera: 'RobotCamera', packet: 'RawViscaPacket') -> None:
     logger.warning(f'Unknown packet {packet_data}')
 
 
-# Association between the start of a packet with a handler
 PACKET_SIGNATURES: Dict[bytes, Callable[['RobotCamera', 'RawViscaPacket'], bool]] = {
     b'\x01\x04\x3f': handle_memory_packet,
     b'\x01\x06\x01': handle_pan_tilt_packet,
     b'\x01\x04\x07': handle_zoom_packet
 }
+"""Association between the start of a packet with a handler"""
