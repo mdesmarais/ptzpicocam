@@ -10,6 +10,8 @@ except ImportError:
 TESTING = False # Should always be False when running on the device target
 
 BTN1_PIN = Pin(10, Pin.IN)
+BTN2_PIN = Pin(11, Pin.IN)
+BTN3_PIN = Pin(12, Pin.IN)
 
 JOYX_PIN = ADC(Pin(26))
 JOYY_PIN = ADC(Pin(27))
@@ -22,12 +24,13 @@ class Button:
 
     LONG_PRESS_TIME = 1000 # Should be adapted
     REBOUND_TIME = 25
-
-    def __init__(self):
+    
+    def __init__(self,idx):
         self.last_pressed_time = 0
         self.time_pressed = 0
         self.triggered_flag = False # Updated by an isr
         self.pressed = False
+        self.index = idx
 
     def isr(self):
         """Called when a button pin detects a change (falling or rising edge).
@@ -80,6 +83,9 @@ class Camera:
 
         self.zoom_speed = 1
         self.zoom_dir = ZoomDirection.NONE
+        
+        self.memory_index = 0
+        self.memory_command = MemoryAction.NONE
 
 
 class Joystick:
@@ -197,7 +203,7 @@ def convert_range(value: int, old_min: int, old_max: int, new_min: int, new_max:
     return ((value - old_min) // (old_max - old_min)) * (new_max - new_min) + new_min
 
 
-def loop(joystick: 'Joystick', camera: 'Camera', uart, btn1: 'Button') -> None:
+def loop(joystick: 'Joystick', camera: 'Camera', uart, btn_list: 'list[Button]') -> None:
     """Main loop.
     
     :param joystick: instance of a joystick
@@ -207,18 +213,25 @@ def loop(joystick: 'Joystick', camera: 'Camera', uart, btn1: 'Button') -> None:
     """
     buffer = bytearray(16)
     ZOOM_LED_PIN = Pin(5, Pin.OUT)
+    memoryCommandTime = 0
+    TIME_FOR_MEMORY_COMMAND_MEMORY = 5
 
     while True:
-        if btn1.triggered_flag:
-            btn1.triggered_flag = False
+        for btn in btn_list:
+            if btn.triggered_flag:
+                btn.triggered_flag = False
+                
+                press_type = btn.press_type
+
+                if press_type == ButtonPressType.SHORT_PRESS:
+                    print('short')
+                    camera.memory_index = btn.index
+                    camera.memory_command = MemoryAction.RECALL
+                elif press_type == ButtonPressType.LONG_PRESS:
+                    print('long')
+                    camera.memory_index = btn.index
+                    camera.memory_command = MemoryAction.SET
             
-            press_type = btn1.press_type
-
-            if press_type == ButtonPressType.SHORT_PRESS:
-                print('short')
-            elif press_type == ButtonPressType.LONG_PRESS:
-                print('long')
-
         if joystick.read_joystick_flag:
             joystick.read_joystick_flag = False
 
@@ -238,10 +251,24 @@ def loop(joystick: 'Joystick', camera: 'Camera', uart, btn1: 'Button') -> None:
                 ZOOM_LED_PIN.off()
                 zoom_packet = CameraAPI.create_stop_zoom_packet(buffer)
 
-            uart.write(zoom_packet.encode())
 
-            pan_tilt_packet = CameraAPI.create_pan_tilt_packet(buffer, camera.pan_speed, camera.pan_dir, camera.tilt_speed, camera.tilt_dir)
-            uart.write(pan_tilt_packet.encode())
+            if camera.memory_command != MemoryAction.NONE:
+                if memoryCommandTime > 0:
+                    if time.time() - memoryCommandTime > TIME_FOR_MEMORY_COMMAND_MEMORY * 1000:
+                        camera.memory_command = MemoryAction.NONE
+                        memoryCommandTime = 0
+                else:
+                    memoryCommandTime = time.time()
+                    if camera.memory_command == MemoryAction.RECALL:
+                        memory_packet = CameraAPI.create_recall_position_packet(buffer,camera.memory_index)
+                    else:
+                         memory_packet = CameraAPI.create_set_position_packet(buffer,camera.memory_index)
+                    uart.write(memory_packet.encode())
+            else:
+                uart.write(zoom_packet.encode())
+
+                pan_tilt_packet = CameraAPI.create_pan_tilt_packet(buffer, camera.pan_speed, camera.pan_dir, camera.tilt_speed, camera.tilt_dir)
+                uart.write(pan_tilt_packet.encode())
 
 
 def timer_isr(joystick: 'Joystick'):
@@ -259,8 +286,19 @@ if __name__ == '__main__':
 
     uart1 = UART(1, baudrate=9600, tx=Pin(4), rx=Pin(5))
 
-    btn1 = Button()
+    btn_list = [3]
+    
+    btn1 = Button(0)
+    btn2 = Button(1)
+    btn3 = Button(2)
+    
     BTN1_PIN.irq(lambda p: btn1.isr())
+    BTN2_PIN.irq(lambda p: btn2.isr())
+    BTN3_PIN.irq(lambda p: btn3.isr())
+    
+    btn_list[0] = btn1
+    btn_list[1] = btn2
+    btn_list[2] = btn3
 
     if not TESTING:
-        loop(joystick, camera, uart1, btn1)
+        loop(joystick, camera, uart1, btn_list)
