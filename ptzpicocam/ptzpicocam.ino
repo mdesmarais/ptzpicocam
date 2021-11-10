@@ -7,6 +7,13 @@
 #define SHORT_PRESS_TIME 1000
 #define TIME_FOR_MEMORY_commande_memory 5 //10 --> 10 secondes
 
+typedef enum MemoryCommand {
+  MEMORY_RESET = 0,
+  MEMORY_SET = 1,
+  MEMORY_RECALL = 2,
+  MEMORY_NONE = 3
+} MemoryCommand;
+
 typedef enum PanDirection {
   PAN_LEFT = 1,
   PAN_RIGHT = 2,
@@ -70,9 +77,9 @@ Camera camera;
 Joystick joystick;
 Bouton allbtn[1];
 
-int8_t buttonToCheck = -1;
-volatile int8_t commande_memory = 0;  //0 pas de commande, 1 memory commande, 2 drive commande
-volatile unsigned long start_memory_commande_memory = 0;
+volatile int8_t buttonToCheck = -1;
+MemoryCommand memoryCommand = MEMORY_NONE;
+uint32_t memoryCommandTime = 0;
 
 void initJoystick() {
   joystick.minVal = 0;
@@ -121,16 +128,11 @@ void loop() {
       allbtn[buttonToCheck].timepressed = millis();   
     } else {
       if(millis()-allbtn[buttonToCheck].timepressed<SHORT_PRESS_TIME) {
-        //Short press 
-        memoryPacket[4] = 0x02;
-        memoryPacket[5] = 0x00;
-        commande_memory=2;
-        start_memory_commande_memory = millis();
+        //Short press
+        memoryCommand = MEMORY_RECALL;
       } else {
         //Long press
-        memoryPacket[4] = 0x01;
-        memoryPacket[5] = 0x00;
-        commande_memory=1;
+        memoryCommand = MEMORY_SET;
       }
       allbtn[buttonToCheck].isPress=false;
 
@@ -189,21 +191,26 @@ void loop() {
   drivePacket[7] = camera.tiltDirection;
 
   zoomPacket[4] = (camera.zoomDirection << 4) | camera.zoomSpeed;
-  if((commande_memory > 0)) {
-    Serial.write(memoryPacket, 7);  
-    if(commande_memory==1) {
-      commande_memory=0; 
-    } else if((millis()-start_memory_commande_memory) >TIME_FOR_MEMORY_commande_memory*1000) {
-      commande_memory=0;  
+
+  if (memoryCommand != MEMORY_NONE) {
+    if (memoryCommandTime > 0) {
+      if ((millis()-memoryCommandTime) >TIME_FOR_MEMORY_commande_memory*1000) {
+        memoryCommand = MEMORY_NONE;
+        memoryCommandTime = 0;
+      }
     }
-  } else {
+    else {
+      memoryCommandTime = millis();
+      memoryPacket[4] = memoryCommand;
+      memoryPacket[5] = 0;
+
+      Serial.write(memoryPacket, 7);
+    }
+  }
+  else {
     Serial.write(drivePacket, 9);
     Serial.write(zoomPacket, 6);
   }
-  /*Serial.print(camera.panSpeed);
-  Serial.print(' ');
-  Serial.print(camera.tiltSpeed);
-  Serial.println();*/
 
   delay(33);
 }
