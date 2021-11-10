@@ -105,8 +105,13 @@ def serial_control_thread(serial_port: str, camera: 'RobotCamera') -> None:
         process_packet(camera, p)
 
 
-def main(args) -> None:
+def main() -> None:
     """Main function."""
+    parser = argparse.ArgumentParser(description='Simulation of the EVI-D100P Sony camera.')
+    parser.add_argument('--serial', default=None, metavar='port', dest='serial_port', help='Path of a serial port for communicating with the camera')
+
+    args = parser.parse_args()
+
     pb.connect(pb.GUI)
 
     # We need to call stepSimulation to make the simulation progressing
@@ -136,7 +141,4 @@ def main(args) -> None:
     pb.disconnect()
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Simulation of the EVI-D100P Sony camera.')
-    parser.add_argument('--serial', default=None, metavar='port', dest='serial_port', help='Path of a serial port for communicating with the camera')
-
-    main(parser.parse_args())
+    main()

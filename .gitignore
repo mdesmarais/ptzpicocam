@@ -8,4 +8,9 @@ env/
 .coverage
 cov.xml
 
-*.bat
+./*.bat
+build/
+dist/
+*.egg-info/
+.tox/
+docs/_build/
