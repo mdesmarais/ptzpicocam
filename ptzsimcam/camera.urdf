@@ -98,6 +98,7 @@
         <child link="base_link"/>
         <axis xyz="0.0 0.0 1.0"/>
         <limit lower="-1.74533" upper="1.74533" effort="0.0" velocity="0.0"/>
+        <dynamics damping="0.2" friction="0.0"/>
     </joint>
 
     <joint name="cam_joint" type="revolute">
