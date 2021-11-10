@@ -13,12 +13,15 @@ with open(requirements_path, 'r') as f:
 setup(
     name='ptzpicocam',
     description='Simlation of a ptz camera',
-    author='Sylvain Courty, Maxime Desmarai',
+    author='Sylvain Courty, Maxime Desmarais',
     author_email='sylvain.courty@apside-groupe.com, maxime.desmarais@apside-groupe.com',
     packages=['ptzpicocam', 'ptzsimcam'],
     package_data={
         'ptzsimcam': ['*.urdf']
     },
     install_requires=deps,
+    extra_require={
+        'docs': ['sphinx', 'sphinx-autoapi']
+    },
     scripts=['scripts/ptzsim']
 )
