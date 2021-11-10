@@ -3,7 +3,11 @@ import time
 from unittest import TestCase
 from unittest.mock import MagicMock
 
-from ptzpicocam.camera import PanDirection, TiltDirection, ZoomDirection
+try:
+    from ptzpicocam.camera import *
+except ImportError:
+    from camera import *
+#from ptzpicocam.camera import PanDirection, TiltDirection, ZoomDirection
 
 sys.modules['machine'] = MagicMock()
 from ptzpicocam.pico import (Button, ButtonPressType, Camera, Joystick,
@@ -19,7 +23,7 @@ class TestButton(TestCase):
 
     def test_isr_Should_NotUpdateFlag_When_ReboundDetected(self):
         self.time_mock.return_value = 0
-        button = Button()
+        button = Button(0)
         button.triggered_flag = False
 
         button.isr()
@@ -28,7 +32,7 @@ class TestButton(TestCase):
 
     def test_isr_Should_UpdateFlag_When_NoReboundDetected(self):
         self.time_mock.return_value = 10000
-        button = Button()
+        button = Button(0)
         button.last_pressed_time = 9000
 
         button.isr()
@@ -37,7 +41,7 @@ class TestButton(TestCase):
         self.assertEqual(10000, button.last_pressed_time)
 
     def test_press_type_Should_ReturnNone_When_ButtonNotPressed(self):
-        button = Button()
+        button = Button(0)
         button.pressed = False
 
         result = button.press_type
@@ -46,7 +50,7 @@ class TestButton(TestCase):
 
     def test_press_type_Should_ReturnShort_When_PressLTLimit(self):
         self.time_mock.return_value = 10000
-        button = Button()
+        button = Button(0)
         button.pressed = True
         button.time_pressed = 10000 - Button.LONG_PRESS_TIME + 1
 
@@ -56,7 +60,7 @@ class TestButton(TestCase):
 
     def test_press_type_Should_ReturnLong_When_PressGTLimit(self):
         self.time_mock.return_value = 10000
-        button = Button()
+        button = Button(0)
         button.pressed = True
         button.time_pressed = 10000 - Button.LONG_PRESS_TIME
 

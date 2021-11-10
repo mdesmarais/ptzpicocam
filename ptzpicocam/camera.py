@@ -158,7 +158,7 @@ class MemoryAction(IntEnum):
     RESET = 0
     SET = 1
     RECALL = 2
-
+    NONE = 3
 
 class PanDirection(IntEnum):
 
