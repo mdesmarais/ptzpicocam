@@ -7,3 +7,5 @@ env/
 
 .coverage
 cov.xml
+
+*.bat
