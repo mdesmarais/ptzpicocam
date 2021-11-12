@@ -20,7 +20,7 @@ setup(
         'ptzsimcam': ['*.urdf']
     },
     install_requires=deps,
-    extra_require={
+    extras_require={
         'docs': ['sphinx', 'sphinx-autoapi']
     },
     scripts=['scripts/ptzsim']
