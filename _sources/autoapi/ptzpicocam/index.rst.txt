@@ -1,0 +1,19 @@
+:py:mod:`ptzpicocam`
+====================
+
+.. py:module:: ptzpicocam
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   camera/index.rst
+   pico/index.rst
+   uenum/index.rst
+   utyping/index.rst
+   visca/index.rst
+
+

@@ -1,0 +1,447 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>ptzpicocam.pico &#8212; PTZ Pico camera 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-ptzpicocam.pico">
+<span id="ptzpicocam-pico"></span><h1><a class="reference internal" href="#module-ptzpicocam.pico" title="ptzpicocam.pico"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ptzpicocam.pico</span></code></a><a class="headerlink" href="#module-ptzpicocam.pico" title="Permalink to this headline">¶</a></h1>
+<p>Code for controlling a PTZ camera through the UART with a Raspberry PI Pico.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ptzpicocam.pico.Button" title="ptzpicocam.pico.Button"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Button</span></code></a></p></td>
+<td><p>A dummy button that supports short and press long detection.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ptzpicocam.pico.ButtonPressType" title="ptzpicocam.pico.ButtonPressType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ButtonPressType</span></code></a></p></td>
+<td><p>Reprents a button press type.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ptzpicocam.pico.Camera" title="ptzpicocam.pico.Camera"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Camera</span></code></a></p></td>
+<td><p>Structure containing informations to send to a camera.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ptzpicocam.pico.Joystick" title="ptzpicocam.pico.Joystick"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Joystick</span></code></a></p></td>
+<td><p>Structure containing informations about a 3-axes joystick.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ptzpicocam.pico.convert_joyx_to_pan" title="ptzpicocam.pico.convert_joyx_to_pan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_joyx_to_pan</span></code></a>(joystick, camera)</p></td>
+<td><p>Converts a joystick axe value into a camera value.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ptzpicocam.pico.convert_joyy_to_tilt" title="ptzpicocam.pico.convert_joyy_to_tilt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_joyy_to_tilt</span></code></a>(joystick, camera)</p></td>
+<td><p>Converts a joystick axe value into a camera value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ptzpicocam.pico.convert_zoom" title="ptzpicocam.pico.convert_zoom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_zoom</span></code></a>(joystick, camera)</p></td>
+<td><p>Converts a joystick axe value into a camera value.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ptzpicocam.pico.convert_range" title="ptzpicocam.pico.convert_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_range</span></code></a>(value, old_min, old_max, new_min, new_max)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ptzpicocam.pico.loop" title="ptzpicocam.pico.loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loop</span></code></a>(joystick, camera, uart, buttons)</p></td>
+<td><p>Main loop.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ptzpicocam.pico.timer_isr" title="ptzpicocam.pico.timer_isr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">timer_isr</span></code></a>(joystick)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ptzpicocam.pico.BTN1_PIN" title="ptzpicocam.pico.BTN1_PIN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BTN1_PIN</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ptzpicocam.pico.BTN2_PIN" title="ptzpicocam.pico.BTN2_PIN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BTN2_PIN</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ptzpicocam.pico.BTN3_PIN" title="ptzpicocam.pico.BTN3_PIN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BTN3_PIN</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ptzpicocam.pico.JOYX_PIN" title="ptzpicocam.pico.JOYX_PIN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">JOYX_PIN</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ptzpicocam.pico.JOYY_PIN" title="ptzpicocam.pico.JOYY_PIN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">JOYY_PIN</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ptzpicocam.pico.ZOOM_PIN" title="ptzpicocam.pico.ZOOM_PIN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZOOM_PIN</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ptzpicocam.pico.TIME_FOR_MEMORY_COMMAND_MEMORY" title="ptzpicocam.pico.TIME_FOR_MEMORY_COMMAND_MEMORY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TIME_FOR_MEMORY_COMMAND_MEMORY</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ptzpicocam.pico.camera" title="ptzpicocam.pico.camera"><code class="xref py py-obj docutils literal notranslate"><span class="pre">camera</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py data">
+<dt class="sig sig-object py" id="ptzpicocam.pico.BTN1_PIN">
+<span class="sig-prename descclassname"><span class="pre">ptzpicocam.pico.</span></span><span class="sig-name descname"><span class="pre">BTN1_PIN</span></span><a class="headerlink" href="#ptzpicocam.pico.BTN1_PIN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ptzpicocam.pico.BTN2_PIN">
+<span class="sig-prename descclassname"><span class="pre">ptzpicocam.pico.</span></span><span class="sig-name descname"><span class="pre">BTN2_PIN</span></span><a class="headerlink" href="#ptzpicocam.pico.BTN2_PIN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ptzpicocam.pico.BTN3_PIN">
+<span class="sig-prename descclassname"><span class="pre">ptzpicocam.pico.</span></span><span class="sig-name descname"><span class="pre">BTN3_PIN</span></span><a class="headerlink" href="#ptzpicocam.pico.BTN3_PIN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ptzpicocam.pico.JOYX_PIN">
+<span class="sig-prename descclassname"><span class="pre">ptzpicocam.pico.</span></span><span class="sig-name descname"><span class="pre">JOYX_PIN</span></span><a class="headerlink" href="#ptzpicocam.pico.JOYX_PIN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ptzpicocam.pico.JOYY_PIN">
+<span class="sig-prename descclassname"><span class="pre">ptzpicocam.pico.</span></span><span class="sig-name descname"><span class="pre">JOYY_PIN</span></span><a class="headerlink" href="#ptzpicocam.pico.JOYY_PIN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ptzpicocam.pico.ZOOM_PIN">
+<span class="sig-prename descclassname"><span class="pre">ptzpicocam.pico.</span></span><span class="sig-name descname"><span class="pre">ZOOM_PIN</span></span><a class="headerlink" href="#ptzpicocam.pico.ZOOM_PIN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ptzpicocam.pico.TIME_FOR_MEMORY_COMMAND_MEMORY">
+<span class="sig-prename descclassname"><span class="pre">ptzpicocam.pico.</span></span><span class="sig-name descname"><span class="pre">TIME_FOR_MEMORY_COMMAND_MEMORY</span></span><em class="property"><span class="w"> </span><span class="pre">=</span> <span class="pre">5000</span></em><a class="headerlink" href="#ptzpicocam.pico.TIME_FOR_MEMORY_COMMAND_MEMORY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ptzpicocam.pico.Button">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptzpicocam.pico.</span></span><span class="sig-name descname"><span class="pre">Button</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzpicocam.pico.Button" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dummy button that supports short and press long detection.</p>
+<p>Creates a new button.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>position_index</strong> (<em>int</em>) – associated memory position to the button</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptzpicocam.pico.Button.LONG_PRESS_TIME">
+<span class="sig-name descname"><span class="pre">LONG_PRESS_TIME</span></span><em class="property"><span class="w"> </span><span class="pre">=</span> <span class="pre">1000</span></em><a class="headerlink" href="#ptzpicocam.pico.Button.LONG_PRESS_TIME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptzpicocam.pico.Button.REBOUND_TIME">
+<span class="sig-name descname"><span class="pre">REBOUND_TIME</span></span><em class="property"><span class="w"> </span><span class="pre">=</span> <span class="pre">25</span></em><a class="headerlink" href="#ptzpicocam.pico.Button.REBOUND_TIME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptzpicocam.pico.Button.isr">
+<span class="sig-name descname"><span class="pre">isr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzpicocam.pico.Button.isr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when a button pin detects a change (falling or rising edge).</p>
+<p>The isr prevents a rebound by saving the timestamp of the last call.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptzpicocam.pico.Button.press_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">press_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzpicocam.pico.Button.press_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the press type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#ptzpicocam.pico.ButtonPressType" title="ptzpicocam.pico.ButtonPressType">ButtonPressType</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ptzpicocam.pico.ButtonPressType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptzpicocam.pico.</span></span><span class="sig-name descname"><span class="pre">ButtonPressType</span></span><a class="headerlink" href="#ptzpicocam.pico.ButtonPressType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">ptzpicocam.camera.IntEnum</span></code></p>
+<p>Reprents a button press type.</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptzpicocam.pico.ButtonPressType.NONE">
+<span class="sig-name descname"><span class="pre">NONE</span></span><em class="property"><span class="w"> </span><span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#ptzpicocam.pico.ButtonPressType.NONE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptzpicocam.pico.ButtonPressType.SHORT_PRESS">
+<span class="sig-name descname"><span class="pre">SHORT_PRESS</span></span><em class="property"><span class="w"> </span><span class="pre">=</span> <span class="pre">1</span></em><a class="headerlink" href="#ptzpicocam.pico.ButtonPressType.SHORT_PRESS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptzpicocam.pico.ButtonPressType.LONG_PRESS">
+<span class="sig-name descname"><span class="pre">LONG_PRESS</span></span><em class="property"><span class="w"> </span><span class="pre">=</span> <span class="pre">2</span></em><a class="headerlink" href="#ptzpicocam.pico.ButtonPressType.LONG_PRESS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ptzpicocam.pico.Camera">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptzpicocam.pico.</span></span><span class="sig-name descname"><span class="pre">Camera</span></span><a class="headerlink" href="#ptzpicocam.pico.Camera" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure containing informations to send to a camera.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ptzpicocam.pico.Joystick">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptzpicocam.pico.</span></span><span class="sig-name descname"><span class="pre">Joystick</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_adc_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_adc_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deadzone</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzpicocam.pico.Joystick" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure containing informations about a 3-axes joystick.</p>
+<p>Creates a new joystick structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>min_adc_val</strong> (<em>int</em>) – minimal value returned by the device ADC</p></li>
+<li><p><strong>max_adc_val</strong> (<em>int</em>) – maximal value returned by the device ADC</p></li>
+<li><p><strong>deadzone</strong> (<em>int</em>) – deadzone in percentage based on the max_adc_val param</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptzpicocam.pico.Joystick.compute_bounds">
+<span class="sig-name descname"><span class="pre">compute_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzpicocam.pico.Joystick.compute_bounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes left and right bounds according to the deadzone.</p>
+<p>Attributes <code class="xref py py-attr docutils literal notranslate"><span class="pre">left_limit</span></code> and <code class="xref py py-attr docutils literal notranslate"><span class="pre">right_limit</span></code> will be set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ptzpicocam.pico.convert_joyx_to_pan">
+<span class="sig-prename descclassname"><span class="pre">ptzpicocam.pico.</span></span><span class="sig-name descname"><span class="pre">convert_joyx_to_pan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joystick</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzpicocam.pico.convert_joyx_to_pan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a joystick axe value into a camera value.</p>
+<p>Attributes <code class="xref py py-attr docutils literal notranslate"><span class="pre">pan_dir</span></code> and <code class="xref py py-attr docutils literal notranslate"><span class="pre">pan_speed</span></code>
+will be modified.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>joystick</strong> (<a class="reference internal" href="#ptzpicocam.pico.Joystick" title="ptzpicocam.pico.Joystick"><em>Joystick</em></a>) – instance of the joystick containing the value to convert</p></li>
+<li><p><strong>camera</strong> (<a class="reference internal" href="#ptzpicocam.pico.Camera" title="ptzpicocam.pico.Camera"><em>Camera</em></a>) – instance of the camera to update</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the joystick is in the deadzone, otherwise False</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ptzpicocam.pico.convert_joyy_to_tilt">
+<span class="sig-prename descclassname"><span class="pre">ptzpicocam.pico.</span></span><span class="sig-name descname"><span class="pre">convert_joyy_to_tilt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joystick</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzpicocam.pico.convert_joyy_to_tilt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a joystick axe value into a camera value.</p>
+<p>Attributes <code class="xref py py-attr docutils literal notranslate"><span class="pre">tilt_dir</span></code> and <code class="xref py py-attr docutils literal notranslate"><span class="pre">tilt_speed</span></code>
+will be modified.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>joystick</strong> (<a class="reference internal" href="#ptzpicocam.pico.Joystick" title="ptzpicocam.pico.Joystick"><em>Joystick</em></a>) – instance of the joystick containing the value to convert</p></li>
+<li><p><strong>camera</strong> (<a class="reference internal" href="#ptzpicocam.pico.Camera" title="ptzpicocam.pico.Camera"><em>Camera</em></a>) – instance of the camera to update</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the joystick is in the deadzone, otherwise False</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ptzpicocam.pico.convert_zoom">
+<span class="sig-prename descclassname"><span class="pre">ptzpicocam.pico.</span></span><span class="sig-name descname"><span class="pre">convert_zoom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joystick</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzpicocam.pico.convert_zoom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a joystick axe value into a camera value.</p>
+<p>Attributes <code class="xref py py-attr docutils literal notranslate"><span class="pre">zoom_dir</span></code> and <code class="xref py py-attr docutils literal notranslate"><span class="pre">zoom_speed</span></code>
+will be modified.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>joystick</strong> (<a class="reference internal" href="#ptzpicocam.pico.Joystick" title="ptzpicocam.pico.Joystick"><em>Joystick</em></a>) – instance of the joystick containing the value to convert</p></li>
+<li><p><strong>camera</strong> (<a class="reference internal" href="#ptzpicocam.pico.Camera" title="ptzpicocam.pico.Camera"><em>Camera</em></a>) – instance of the camera to update</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the joystick is in the deadzone, otherwise False</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ptzpicocam.pico.convert_range">
+<span class="sig-prename descclassname"><span class="pre">ptzpicocam.pico.</span></span><span class="sig-name descname"><span class="pre">convert_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_max</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzpicocam.pico.convert_range" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> (<em>int</em>) – </p></li>
+<li><p><strong>old_min</strong> (<em>int</em>) – </p></li>
+<li><p><strong>old_max</strong> (<em>int</em>) – </p></li>
+<li><p><strong>new_min</strong> (<em>int</em>) – </p></li>
+<li><p><strong>new_max</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ptzpicocam.pico.loop">
+<span class="sig-prename descclassname"><span class="pre">ptzpicocam.pico.</span></span><span class="sig-name descname"><span class="pre">loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joystick</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uart</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buttons</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzpicocam.pico.loop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main loop.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>joystick</strong> (<a class="reference internal" href="#ptzpicocam.pico.Joystick" title="ptzpicocam.pico.Joystick"><em>Joystick</em></a>) – instance of a joystick</p></li>
+<li><p><strong>camera</strong> (<a class="reference internal" href="#ptzpicocam.pico.Camera" title="ptzpicocam.pico.Camera"><em>Camera</em></a>) – instance of a camera to control</p></li>
+<li><p><strong>uart</strong> – uart for sending packets</p></li>
+<li><p><strong>buttons</strong> (<em>List</em><em>[</em><a class="reference internal" href="#ptzpicocam.pico.Button" title="ptzpicocam.pico.Button"><em>Button</em></a><em>]</em>) – list of buttons for controlling positions</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ptzpicocam.pico.timer_isr">
+<span class="sig-prename descclassname"><span class="pre">ptzpicocam.pico.</span></span><span class="sig-name descname"><span class="pre">timer_isr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">joystick</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzpicocam.pico.timer_isr" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>joystick</strong> (<a class="reference internal" href="#ptzpicocam.pico.Joystick" title="ptzpicocam.pico.Joystick"><em>Joystick</em></a>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ptzpicocam.pico.camera">
+<span class="sig-prename descclassname"><span class="pre">ptzpicocam.pico.</span></span><span class="sig-name descname"><span class="pre">camera</span></span><a class="headerlink" href="#ptzpicocam.pico.camera" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">PTZ Pico camera</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">API Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Sylvain Courty, Maxime Desmarais.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../../_sources/autoapi/ptzpicocam/pico/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

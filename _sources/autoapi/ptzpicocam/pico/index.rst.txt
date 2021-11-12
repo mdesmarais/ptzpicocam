@@ -1,0 +1,226 @@
+:py:mod:`ptzpicocam.pico`
+=========================
+
+.. py:module:: ptzpicocam.pico
+
+.. autoapi-nested-parse::
+
+   Code for controlling a PTZ camera through the UART with a Raspberry PI Pico.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   ptzpicocam.pico.Button
+   ptzpicocam.pico.ButtonPressType
+   ptzpicocam.pico.Camera
+   ptzpicocam.pico.Joystick
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   ptzpicocam.pico.convert_joyx_to_pan
+   ptzpicocam.pico.convert_joyy_to_tilt
+   ptzpicocam.pico.convert_zoom
+   ptzpicocam.pico.convert_range
+   ptzpicocam.pico.loop
+   ptzpicocam.pico.timer_isr
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   ptzpicocam.pico.BTN1_PIN
+   ptzpicocam.pico.BTN2_PIN
+   ptzpicocam.pico.BTN3_PIN
+   ptzpicocam.pico.JOYX_PIN
+   ptzpicocam.pico.JOYY_PIN
+   ptzpicocam.pico.ZOOM_PIN
+   ptzpicocam.pico.TIME_FOR_MEMORY_COMMAND_MEMORY
+   ptzpicocam.pico.camera
+
+
+.. py:data:: BTN1_PIN
+   
+
+   
+
+.. py:data:: BTN2_PIN
+   
+
+   
+
+.. py:data:: BTN3_PIN
+   
+
+   
+
+.. py:data:: JOYX_PIN
+   
+
+   
+
+.. py:data:: JOYY_PIN
+   
+
+   
+
+.. py:data:: ZOOM_PIN
+   
+
+   
+
+.. py:data:: TIME_FOR_MEMORY_COMMAND_MEMORY
+   :annotation: = 5000
+
+   
+
+.. py:class:: Button(position_index)
+
+   A dummy button that supports short and press long detection.
+
+   Creates a new button.
+
+   :param position_index: associated memory position to the button
+
+   .. py:attribute:: LONG_PRESS_TIME
+      :annotation: = 1000
+
+      
+
+   .. py:attribute:: REBOUND_TIME
+      :annotation: = 25
+
+      
+
+   .. py:method:: isr(self)
+
+      Called when a button pin detects a change (falling or rising edge).
+
+      The isr prevents a rebound by saving the timestamp of the last call.
+
+
+   .. py:method:: press_type(self)
+      :property:
+
+      Gets the press type.
+
+
+
+.. py:class:: ButtonPressType
+
+   Bases: :py:obj:`ptzpicocam.camera.IntEnum`
+
+   Reprents a button press type.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+   .. py:attribute:: NONE
+      :annotation: = 0
+
+      
+
+   .. py:attribute:: SHORT_PRESS
+      :annotation: = 1
+
+      
+
+   .. py:attribute:: LONG_PRESS
+      :annotation: = 2
+
+      
+
+
+.. py:class:: Camera
+
+   Structure containing informations to send to a camera.
+
+
+.. py:class:: Joystick(min_adc_val, max_adc_val, deadzone)
+
+   Structure containing informations about a 3-axes joystick.
+
+   Creates a new joystick structure.
+
+   :param min_adc_val: minimal value returned by the device ADC
+   :param max_adc_val: maximal value returned by the device ADC
+   :param deadzone: deadzone in percentage based on the max_adc_val param
+
+   .. py:method:: compute_bounds(self)
+
+      Computes left and right bounds according to the deadzone.
+
+      Attributes :py:attr:`~.Joystick.left_limit` and :py:attr:`~.Joystick.right_limit` will be set.
+
+
+
+.. py:function:: convert_joyx_to_pan(joystick, camera)
+
+   Converts a joystick axe value into a camera value.
+
+   Attributes :py:attr:`~.Camera.pan_dir` and :py:attr:`~.Camera.pan_speed`
+   will be modified.
+
+   :param joystick: instance of the joystick containing the value to convert
+   :param camera: instance of the camera to update
+   :returns: True if the joystick is in the deadzone, otherwise False
+
+
+.. py:function:: convert_joyy_to_tilt(joystick, camera)
+
+   Converts a joystick axe value into a camera value.
+
+   Attributes :py:attr:`~.Camera.tilt_dir` and :py:attr:`~.Camera.tilt_speed`
+   will be modified.
+
+   :param joystick: instance of the joystick containing the value to convert
+   :param camera: instance of the camera to update
+   :returns: True if the joystick is in the deadzone, otherwise False
+
+
+.. py:function:: convert_zoom(joystick, camera)
+
+   Converts a joystick axe value into a camera value.
+
+   Attributes :py:attr:`~.Camera.zoom_dir` and :py:attr:`~.Camera.zoom_speed`
+   will be modified.
+
+   :param joystick: instance of the joystick containing the value to convert
+   :param camera: instance of the camera to update
+   :returns: True if the joystick is in the deadzone, otherwise False
+
+
+.. py:function:: convert_range(value, old_min, old_max, new_min, new_max)
+
+
+.. py:function:: loop(joystick, camera, uart, buttons)
+
+   Main loop.
+
+   :param joystick: instance of a joystick
+   :param camera: instance of a camera to control
+   :param uart: uart for sending packets
+   :param buttons: list of buttons for controlling positions
+
+
+.. py:function:: timer_isr(joystick)
+
+
+.. py:data:: camera
+   
+
+   
+

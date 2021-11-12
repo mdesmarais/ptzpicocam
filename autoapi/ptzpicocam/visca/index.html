@@ -1,0 +1,227 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>ptzpicocam.visca &#8212; PTZ Pico camera 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-ptzpicocam.visca">
+<span id="ptzpicocam-visca"></span><h1><a class="reference internal" href="#module-ptzpicocam.visca" title="ptzpicocam.visca"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ptzpicocam.visca</span></code></a><a class="headerlink" href="#module-ptzpicocam.visca" title="Permalink to this headline">¶</a></h1>
+<p>Defines the RawViscaPacket for manipulating VISCA packets.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ptzpicocam.visca.RawViscaPacket" title="ptzpicocam.visca.RawViscaPacket"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RawViscaPacket</span></code></a></p></td>
+<td><p>Represents a raw packet used in the Visca protocol.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="ptzpicocam.visca.RawViscaPacket">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptzpicocam.visca.</span></span><span class="sig-name descname"><span class="pre">RawViscaPacket</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">receiver_addr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sender_addr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzpicocam.visca.RawViscaPacket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a raw packet used in the Visca protocol.</p>
+<p>A packet contains a header, a body and a terminator byte (0xff).
+The header contains two addresses : the receiver and the sender.
+The body has a variable length.</p>
+<p>Creates a new raw packet.</p>
+<p>The buffer must have a capacity of at least 2 bytes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>receiver_addr</strong> (<em>int</em>) – address of the receiver</p></li>
+<li><p><strong>sender_addr</strong> (<em>int</em>) – address of the sender</p></li>
+<li><p><strong>buffer</strong> (<em>bytearray</em>) – a buffer for holding the packet</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptzpicocam.visca.RawViscaPacket.encode">
+<span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzpicocam.visca.RawViscaPacket.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes headers and terminating byte into the buffer and returns it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>memoryview</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptzpicocam.visca.RawViscaPacket.data">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzpicocam.visca.RawViscaPacket.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a pointer on the buffer containing the packet data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>memoryview</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptzpicocam.visca.RawViscaPacket.decode">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzpicocam.visca.RawViscaPacket.decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decodes a packet from the given stream.</p>
+<p>The stream must be readable and contain at least 2 bytes (header + terminator).
+The given buffer must be large enough for holding the entire packet. If it is not
+the case then the method will return None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>buffer</strong> (<em>bytearray</em>) – a buffer for holding the packet</p></li>
+<li><p><strong>stream</strong> (<a class="reference internal" href="../utyping/index.html#ptzpicocam.utyping.BinaryIO" title="ptzpicocam.utyping.BinaryIO"><em>BinaryIO</em></a>) – stream of bytes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a new instance of <a class="reference internal" href="#ptzpicocam.visca.RawViscaPacket" title="ptzpicocam.visca.RawViscaPacket"><code class="xref py py-class docutils literal notranslate"><span class="pre">RawViscaPacket</span></code></a> representing the packet or None if the buffer is too small</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="../utyping/index.html#ptzpicocam.utyping.Optional" title="ptzpicocam.utyping.Optional">Optional</a>[<a class="reference internal" href="#ptzpicocam.visca.RawViscaPacket" title="ptzpicocam.visca.RawViscaPacket">RawViscaPacket</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptzpicocam.visca.RawViscaPacket.write_data">
+<span class="sig-name descname"><span class="pre">write_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzpicocam.visca.RawViscaPacket.write_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes a byte in the buffer at the next available position.</p>
+<p>If the buffer is full then it will return False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>b</strong> (<em>int</em>) – a byte to write</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the byte has be written in the buffer, otherwise False</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptzpicocam.visca.RawViscaPacket.write_bytes">
+<span class="sig-name descname"><span class="pre">write_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzpicocam.visca.RawViscaPacket.write_bytes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes bytes in the buffer at the next available position.</p>
+<p>If the buffer is full then it will return False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>b</strong> – a byte to write</p></li>
+<li><p><strong>data</strong> (<em>bytes</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if all bytes have be written in the buffer, otherwise False</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">PTZ Pico camera</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">API Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Sylvain Courty, Maxime Desmarais.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../../_sources/autoapi/ptzpicocam/visca/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

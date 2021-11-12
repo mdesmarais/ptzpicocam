@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Welcome to PTZ Pico camera’s documentation! &#8212; PTZ Pico camera 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="welcome-to-ptz-pico-camera-s-documentation">
+<h1>Welcome to PTZ Pico camera’s documentation!<a class="headerlink" href="#welcome-to-ptz-pico-camera-s-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/ptzsimcam/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ptzsimcam</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/ptzpicocam/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ptzpicocam</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="ptz-pico-camera">
+<h1>PTZ Pico camera<a class="headerlink" href="#ptz-pico-camera" title="Permalink to this headline">¶</a></h1>
+<p>Ce projet est constitué de deux applications :</p>
+<ul class="simple">
+<li><p><strong>ptzpicocam</strong> : application destinée à être exécutée sur un Raspberry PI Pico pour contrôler une caméra</p></li>
+<li><p><strong>ptzsimcam</strong> : simulation d’une caméra ptz contrôlable via une interface graphique ou via le port série</p></li>
+</ul>
+<p>Une caméra PTZ est pilotable sur trois axes : horizontal (Pan), vertical (Tilt) et la profondeur (zoom). Le modèle de référence est la caméra EVI-H100s de Sony. Elle peut être contrôlé via un port série en utilisant le protocole <a class="reference external" href="https://pro.sony/support/res/manuals/AE4U/AE4U1001M.pdf">visca</a>.</p>
+<p>L’application <strong>ptzpicocam</strong> est écrit en Micropython. Les tests unitaires associés sont destinés à être exécutés en python sur un ordinateur.</p>
+<p>Un simulateur a été développé pour pouvoir tester l’implémentation de ce protocole sans avoir besoin de matériel. Il est écrit en python et est basé sur <a class="reference external" href="https://pybullet.org/wordpress/">pybullet</a>. La caméra a été modélisé avec le langage URDF pour être reconnu par la simulation. Elle est contrôlable via une interface graphique ou via le port série. Cette dernière option permet d’utiliser du vrai matériel pour piloter la caméra.</p>
+<section id="dependances">
+<h2>Dépendances<a class="headerlink" href="#dependances" title="Permalink to this headline">¶</a></h2>
+<p>Le simulateur a été testé avec Python 3.8. Les versions 3.7+ devraient fonctionner.</p>
+<ul class="simple">
+<li><p>numpy v1.21.3</p></li>
+<li><p>pybullet v3.2.0</p></li>
+<li><p>pyserial v3.5</p></li>
+<li><p>scipy v1.7.1</p></li>
+</ul>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>L’utilisation d’un environnement virtuel est conseillé pour éviter des conflits de dépendances. La création d’un environnement peut se faire avec l’outil <a class="reference external" href="https://docs.python.org/3/library/venv.html">venv</a>. Après avoir installé l’outil, il faudra saisir la commande suivante <code class="code docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">venv</span> <span class="pre">env</span></code>. L’environnement devra être activé à chaque ouverture du terminal avec la commande suivante :</p>
+<ul class="simple">
+<li><p>Linux : <code class="code docutils literal notranslate"><span class="pre">source</span> <span class="pre">env/bin/activate</span></code></p></li>
+<li><p>Windows : <code class="code docutils literal notranslate"><span class="pre">env\Scripts\activate.bat</span></code></p></li>
+</ul>
+<p>L’installation du simulateur se fait en utilisant le script setup.py : <code class="code docutils literal notranslate"><span class="pre">python3</span> <span class="pre">setup.py</span> <span class="pre">install</span></code>. Les dépendances seront automatiquement installées.</p>
+</section>
+<section id="utilisation">
+<h2>Utilisation<a class="headerlink" href="#utilisation" title="Permalink to this headline">¶</a></h2>
+<p>Composants requis pour le montage :</p>
+<ul class="simple">
+<li><p>joystick 3 axes (ou potentiomètre pour le zoom)</p></li>
+<li><p>boutons poussoirs x 3</p></li>
+<li><p>Résistances 10k x 3 + 1k x 1</p></li>
+<li><p>Led</p></li>
+</ul>
+<div class="line-block">
+<div class="line">La led est utilisée pour indiquer que le potentiomètre se trouve au point mort (milieu).</div>
+<div class="line">Une deadzone est configurable dans le code pour résoudre le problème du joystick mal réglé.</div>
+</div>
+<p>Le montage pour le Raspberry PI Pico utilise les pins suivant :</p>
+<ul class="simple">
+<li><p>4 : UART TX</p></li>
+<li><p>5 : Zoom led</p></li>
+<li><p>10 : bouton 1</p></li>
+<li><p>11 : bouton 2</p></li>
+<li><p>12 : bouton 3</p></li>
+<li><p>26 : joystick x</p></li>
+<li><p>27 : joystick y</p></li>
+<li><p>28 : zoom</p></li>
+</ul>
+<p>Le montage sur l’Arduino UNO utilise les pins suivant :</p>
+<ul class="simple">
+<li><p>A0 : joystick x</p></li>
+<li><p>A1 : joystick y</p></li>
+<li><p>A2 : zoom</p></li>
+<li><p>3 : bouton 1</p></li>
+<li><p>5 : zoom led</p></li>
+</ul>
+<p>Le lancement du simulateur se fait avec la commande <strong>ptzsim</strong>. Par defaut la simulation est uniquement contrôlable via l’interface graphique. En passant l’argument <code class="code docutils literal notranslate"><span class="pre">--serial</span></code>, la caméra peut être contrôlée via le port série.</p>
+<p>Exemple : <code class="code docutils literal notranslate"><span class="pre">ptzsim</span> <span class="pre">--serial</span> <span class="pre">/dev/ttyACM0</span></code>.</p>
+</section>
+<section id="tests">
+<h2>Tests<a class="headerlink" href="#tests" title="Permalink to this headline">¶</a></h2>
+<p>Les tests peuvent être exécutées avec pytest.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">PTZ Pico camera</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Sylvain Courty, Maxime Desmarais.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

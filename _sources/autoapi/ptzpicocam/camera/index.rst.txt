@@ -1,0 +1,234 @@
+:py:mod:`ptzpicocam.camera`
+===========================
+
+.. py:module:: ptzpicocam.camera
+
+.. autoapi-nested-parse::
+
+   Defines API for creating VISCA packets and enumerations.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   ptzpicocam.camera.CameraAPI
+   ptzpicocam.camera.MemoryAction
+   ptzpicocam.camera.PanDirection
+   ptzpicocam.camera.TiltDirection
+   ptzpicocam.camera.ZoomDirection
+
+
+
+
+.. py:class:: CameraAPI
+
+   API for controlling a camera with the VISCA protocol.
+
+   .. py:method:: create_pan_tilt_packet(cls, buffer, pan_speed, pan_direction, tilt_speed, tilt_direction)
+      :classmethod:
+
+      Creates a packet for moving the camera around two axes (pan / title).
+
+      The given buffer must have a capacity of at least 7 bytes. It will
+      raise a RuntimeError if the buffer is too small. It could have been
+      modified even if an exception is thrown.
+
+      Pan speed must be a value between 1 and 24.
+      Tilt speed must be a value between 1 and 23.
+      If any of the previous conditions is not met then
+      a ValueError exception will be raised.
+
+      :param buffer: a buffer for holding the packet
+      :param pan_direction: a direction around the X axe
+      :param pan_speed: a speed value between 0 and 24
+      :param tilt_speed: a speed value between 0 and 23
+      :param tilt_direction: a direction around the Y axe
+      :raises RuntimeError: if the buffer is too small
+      :raises ValueError: if a speed is not valid or the buffer is too small
+      :returns: a packet containing a drive command
+
+
+   .. py:method:: create_memory_packet(cls, buffer, position_index, memory_action)
+      :classmethod:
+
+      Creates a packet for interacting with the camera positions memory.
+
+      The given buffer must have a capacity of at least 5 bytes. It will
+      raise a RuntimeError if the buffer is too small. It could have been
+      modified even if an exception is thrown.
+
+      The camera supports 6 positions : a position must be called by its index.
+      It is an integer between 0 and 5 included.
+
+      :param buffer: a buffer for holding the packet
+      :param position_index: index of the position to select (0-5)
+      :param memory_action: action to perform on the selected position
+      :raises RuntimeError: if the buffer is too small
+      :raises ValueError: if the index is not valid
+      :returns: a memory packet
+
+
+   .. py:method:: create_recall_position_packet(cls, buffer, position_index)
+      :classmethod:
+
+      Creates a packet for recalling a position.
+
+      It is an alias of :py:meth:`~.CameraAPI.create_memory_packet`. 
+
+
+   .. py:method:: create_reset_position_packet(cls, buffer, position_index)
+      :classmethod:
+
+      Creates a packet for resetting a position.
+
+      It is an alias of :py:meth:`~.CameraAPI.create_memory_packet`. 
+
+
+   .. py:method:: create_set_position_packet(cls, buffer, position_index)
+      :classmethod:
+
+      Creates a packet for setting a position.
+
+      It is an alias of :py:meth:`~.CameraAPI.create_memory_packet`. 
+
+
+   .. py:method:: create_stop_zoom_packet(cls, buffer)
+      :classmethod:
+
+      Creates a packet for stopping the camera zoom..
+
+      The given buffer must have a capacity of at least 4 bytes. It will
+      raise a RuntimeError if the buffer is too small. It could have been
+      modified even if an exception is thrown.
+
+      :raises RuntimeError: if the buffer is too small
+      :returns: a packet containing a stop zoom command
+
+
+   .. py:method:: create_zoom_packet(cls, buffer, zoom_speed, direction)
+      :classmethod:
+
+      Creates a packet for controlling the camera zoom.
+
+      The given buffer must have a capacity of at least 4 bytes. It will
+      raise a RuntimeError if the buffer is too small. It could have been
+      modified even if an exception is thrown.
+
+      :param zoom_speed: a speed value between 0 and 7
+      :param direction: a direction
+      :raises RuntimeError: if the buffer is too small
+      :raises ValueError: if zoom_speed is not between 0 and 7 included
+      :returns: a packet containing a zoom command
+
+
+
+.. py:class:: MemoryAction
+
+   Bases: :py:obj:`enum.IntEnum`
+
+   Available actions when interacting with camera positions memory.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+   .. py:attribute:: RESET
+      :annotation: = 0
+
+      
+
+   .. py:attribute:: SET
+      :annotation: = 1
+
+      
+
+   .. py:attribute:: RECALL
+      :annotation: = 2
+
+      
+
+   .. py:attribute:: NONE
+      :annotation: = 3
+
+      
+
+
+.. py:class:: PanDirection
+
+   Bases: :py:obj:`enum.IntEnum`
+
+   Represents a direction for the pan (X axe).
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+   .. py:attribute:: LEFT
+      :annotation: = 1
+
+      
+
+   .. py:attribute:: RIGHT
+      :annotation: = 2
+
+      
+
+   .. py:attribute:: NONE
+      :annotation: = 3
+
+      
+
+
+.. py:class:: TiltDirection
+
+   Bases: :py:obj:`enum.IntEnum`
+
+   Represents a direction for the tilt (Y axe).
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+   .. py:attribute:: UP
+      :annotation: = 1
+
+      
+
+   .. py:attribute:: DOWN
+      :annotation: = 2
+
+      
+
+   .. py:attribute:: NONE
+      :annotation: = 3
+
+      
+
+
+.. py:class:: ZoomDirection
+
+   Bases: :py:obj:`enum.IntEnum`
+
+   Represents a direction for the camera zoom.
+
+   TELE = FORWARD
+   WIDE = BACKWARD
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+   .. py:attribute:: NONE
+      :annotation: = 0
+
+      
+
+   .. py:attribute:: TELE
+      :annotation: = 2
+
+      
+
+   .. py:attribute:: WIDE
+      :annotation: = 3
+
+      
+
+

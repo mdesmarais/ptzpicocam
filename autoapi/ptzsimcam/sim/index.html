@@ -1,0 +1,201 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>ptzsimcam.sim &#8212; PTZ Pico camera 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-ptzsimcam.sim">
+<span id="ptzsimcam-sim"></span><h1><a class="reference internal" href="#module-ptzsimcam.sim" title="ptzsimcam.sim"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ptzsimcam.sim</span></code></a><a class="headerlink" href="#module-ptzsimcam.sim" title="Permalink to this headline">¶</a></h1>
+<p>Creates a pybullet simulation for a ptz camera.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ptzsimcam.sim.Simulation" title="ptzsimcam.sim.Simulation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Simulation</span></code></a></p></td>
+<td><p>A pybullet simulation for controlling a camera.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ptzsimcam.sim.serial_control_thread" title="ptzsimcam.sim.serial_control_thread"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serial_control_thread</span></code></a>(serial_port, camera)</p></td>
+<td><p>Reads packet from a serial port and sends them to the camera.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ptzsimcam.sim.main" title="ptzsimcam.sim.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>()</p></td>
+<td><p>Main function.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="ptzsimcam.sim.Simulation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptzsimcam.sim.</span></span><span class="sig-name descname"><span class="pre">Simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camera</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_gui_control</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzsimcam.sim.Simulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>A pybullet simulation for controlling a camera.</p>
+<p>Creates a new simulation into pybullet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>camera</strong> (<a class="reference internal" href="../robot_camera/index.html#ptzsimcam.robot_camera.RobotCamera" title="ptzsimcam.robot_camera.RobotCamera"><em>ptzsimcam.robot_camera.RobotCamera</em></a>) – instance of the robot camera to control</p></li>
+<li><p><strong>enable_gui_control</strong> (<em>bool</em>) – if True then the camera will be controlled with sliders</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptzsimcam.sim.Simulation.gui_controller">
+<span class="sig-name descname"><span class="pre">gui_controller</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzsimcam.sim.Simulation.gui_controller" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads slider values and sends driver packet to the camera.s</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptzsimcam.sim.Simulation.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzsimcam.sim.Simulation.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulation loop.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ptzsimcam.sim.serial_control_thread">
+<span class="sig-prename descclassname"><span class="pre">ptzsimcam.sim.</span></span><span class="sig-name descname"><span class="pre">serial_control_thread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">serial_port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzsimcam.sim.serial_control_thread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads packet from a serial port and sends them to the camera.</p>
+<p>This function is blocking, it should be executed in a dedicated thread.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>serial_port</strong> (<em>str</em>) – a serial port for receiving packets</p></li>
+<li><p><strong>camera</strong> (<a class="reference internal" href="../robot_camera/index.html#ptzsimcam.robot_camera.RobotCamera" title="ptzsimcam.robot_camera.RobotCamera"><em>ptzsimcam.robot_camera.RobotCamera</em></a>) – instance of the camera to control</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ptzsimcam.sim.main">
+<span class="sig-prename descclassname"><span class="pre">ptzsimcam.sim.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptzsimcam.sim.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">PTZ Pico camera</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">API Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Sylvain Courty, Maxime Desmarais.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../../_sources/autoapi/ptzsimcam/sim/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

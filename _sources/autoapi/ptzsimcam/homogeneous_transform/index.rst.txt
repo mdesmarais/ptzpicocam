@@ -1,0 +1,66 @@
+:py:mod:`ptzsimcam.homogeneous_transform`
+=========================================
+
+.. py:module:: ptzsimcam.homogeneous_transform
+
+.. autoapi-nested-parse::
+
+   Defines functions for applying transformations on matrices.
+
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   ptzsimcam.homogeneous_transform.rot_x
+   ptzsimcam.homogeneous_transform.rot_y
+   ptzsimcam.homogeneous_transform.rot_z
+   ptzsimcam.homogeneous_transform.translation
+   ptzsimcam.homogeneous_transform.get_quat
+
+
+
+.. py:function:: rot_x(alpha)
+
+   Return the 4x4 homogeneous transform corresponding to a rotation of
+   alpha around x
+
+
+.. py:function:: rot_y(alpha)
+
+   Return the 4x4 homogeneous transform corresponding to a rotation of
+   alpha around y
+
+
+.. py:function:: rot_z(alpha)
+
+   Return the 4x4 homogeneous transform corresponding to a rotation of
+   alpha around z
+
+
+.. py:function:: translation(vec)
+
+   Return the 4x4 homogeneous transform corresponding to a translation of
+   vec
+
+
+.. py:function:: get_quat(T)
+
+   Parameters
+   ----------
+   T : np.ndarray shape(4,4)
+       A 3d homogeneous transformation matrix
+
+   Returns
+   -------
+   quat : np.ndarray shape(4,)
+       a quaternion representing the rotation part of the homogeneous
+       transformation matrix
+
+

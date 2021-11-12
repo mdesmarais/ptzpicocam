@@ -1,0 +1,274 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>ptzsimcam.robot_camera &#8212; PTZ Pico camera 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-ptzsimcam.robot_camera">
+<span id="ptzsimcam-robot-camera"></span><h1><a class="reference internal" href="#module-ptzsimcam.robot_camera" title="ptzsimcam.robot_camera"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ptzsimcam.robot_camera</span></code></a><a class="headerlink" href="#module-ptzsimcam.robot_camera" title="Permalink to this headline">¶</a></h1>
+<p>Defines a camera robot based on the EVI-D100 by Sony for pybullet.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ptzsimcam.robot_camera.RobotCamera" title="ptzsimcam.robot_camera.RobotCamera"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RobotCamera</span></code></a></p></td>
+<td><p>Represents a camera that uses the VISCA protocol.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ptzsimcam.robot_camera.compute_projection_matrix" title="ptzsimcam.robot_camera.compute_projection_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_projection_matrix</span></code></a>(fov)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ptzsimcam.robot_camera.ZOOM_SPEEDS" title="ptzsimcam.robot_camera.ZOOM_SPEEDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZOOM_SPEEDS</span></code></a></p></td>
+<td><p>Association between a visca zoom speed (0, 7) and a zoom speed in degrees/s.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py data">
+<dt class="sig sig-object py" id="ptzsimcam.robot_camera.ZOOM_SPEEDS">
+<span class="sig-prename descclassname"><span class="pre">ptzsimcam.robot_camera.</span></span><span class="sig-name descname"><span class="pre">ZOOM_SPEEDS</span></span><em class="property"><span class="w"> </span><span class="pre">=</span> <span class="pre">[0,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">5,</span> <span class="pre">7,</span> <span class="pre">10,</span> <span class="pre">15,</span> <span class="pre">20]</span></em><a class="headerlink" href="#ptzsimcam.robot_camera.ZOOM_SPEEDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Association between a visca zoom speed (0, 7) and a zoom speed in degrees/s.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ptzsimcam.robot_camera.RobotCamera">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptzsimcam.robot_camera.</span></span><span class="sig-name descname"><span class="pre">RobotCamera</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">main_link</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pan_joint_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tilt_joint_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzsimcam.robot_camera.RobotCamera" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a camera that uses the VISCA protocol.</p>
+<p>Creates a new robot camera in a simulation.</p>
+<p>A robot camera is made of 2 joints.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>main_link</strong> – root link in the associated urdf</p></li>
+<li><p><strong>pan_joint_index</strong> (<em>int</em>) – index of the first joint</p></li>
+<li><p><strong>tilt_joint_index</strong> (<em>int</em>) – index of the second joint</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptzsimcam.robot_camera.RobotCamera.ZOOM_FOV_MIN">
+<span class="sig-name descname"><span class="pre">ZOOM_FOV_MIN</span></span><em class="property"><span class="w"> </span><span class="pre">=</span> <span class="pre">2.9</span></em><a class="headerlink" href="#ptzsimcam.robot_camera.RobotCamera.ZOOM_FOV_MIN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptzsimcam.robot_camera.RobotCamera.ZOOM_FOV_MAX">
+<span class="sig-name descname"><span class="pre">ZOOM_FOV_MAX</span></span><em class="property"><span class="w"> </span><span class="pre">=</span> <span class="pre">55.9</span></em><a class="headerlink" href="#ptzsimcam.robot_camera.RobotCamera.ZOOM_FOV_MAX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptzsimcam.robot_camera.RobotCamera.drive">
+<span class="sig-name descname"><span class="pre">drive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzsimcam.robot_camera.RobotCamera.drive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves the camera with the current pan and tilt speeds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptzsimcam.robot_camera.RobotCamera.get_base_from_camera">
+<span class="sig-name descname"><span class="pre">get_base_from_camera</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzsimcam.robot_camera.RobotCamera.get_base_from_camera" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the base position at the end of the robot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptzsimcam.robot_camera.RobotCamera.recall_position">
+<span class="sig-name descname"><span class="pre">recall_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzsimcam.robot_camera.RobotCamera.recall_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves the camera to the position recorded at the given index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>position_index</strong> (<em>int</em>) – index of the position to recall</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – if the index is not between 0 and 5 included</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptzsimcam.robot_camera.RobotCamera.render_image">
+<span class="sig-name descname"><span class="pre">render_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzsimcam.robot_camera.RobotCamera.render_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Renders an image using the simulated camera of pybullet.</p>
+<p>The camera will be placed at the end of the robot.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptzsimcam.robot_camera.RobotCamera.reset_positions">
+<span class="sig-name descname"><span class="pre">reset_positions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzsimcam.robot_camera.RobotCamera.reset_positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets all recorded positions to 0.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptzsimcam.robot_camera.RobotCamera.set_position">
+<span class="sig-name descname"><span class="pre">set_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzsimcam.robot_camera.RobotCamera.set_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the given position index with the current camera position.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>position_index</strong> (<em>int</em>) – index of the position to set</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – if the index is not between 0 and 5 included</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptzsimcam.robot_camera.RobotCamera.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refresh_freq</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzsimcam.robot_camera.RobotCamera.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates camera zoom and renders an image.</p>
+<p>This method should not be called too often because
+some computations are slow.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>refresh_freq</strong> (<em>float</em>) – frequency at which this method will be called</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ptzsimcam.robot_camera.compute_projection_matrix">
+<span class="sig-prename descclassname"><span class="pre">ptzsimcam.robot_camera.</span></span><span class="sig-name descname"><span class="pre">compute_projection_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fov</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzsimcam.robot_camera.compute_projection_matrix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">PTZ Pico camera</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">API Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Sylvain Courty, Maxime Desmarais.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../../_sources/autoapi/ptzsimcam/robot_camera/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,86 @@
+:py:mod:`ptzpicocam.visca`
+==========================
+
+.. py:module:: ptzpicocam.visca
+
+.. autoapi-nested-parse::
+
+   Defines the RawViscaPacket for manipulating VISCA packets.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   ptzpicocam.visca.RawViscaPacket
+
+
+
+
+.. py:class:: RawViscaPacket(receiver_addr, sender_addr, buffer)
+
+   Represents a raw packet used in the Visca protocol.
+
+   A packet contains a header, a body and a terminator byte (0xff).
+   The header contains two addresses : the receiver and the sender.
+   The body has a variable length.
+
+   Creates a new raw packet.
+
+   The buffer must have a capacity of at least 2 bytes.
+
+   :param receiver_addr: address of the receiver
+   :param sender_addr: address of the sender
+   :param buffer: a buffer for holding the packet
+
+   .. py:method:: encode(self)
+
+      Writes headers and terminating byte into the buffer and returns it.
+
+
+   .. py:method:: data(self)
+      :property:
+
+      Gets a pointer on the buffer containing the packet data.
+
+
+   .. py:method:: decode(cls, buffer, stream)
+      :classmethod:
+
+      Decodes a packet from the given stream.
+
+      The stream must be readable and contain at least 2 bytes (header + terminator).
+      The given buffer must be large enough for holding the entire packet. If it is not
+      the case then the method will return None.
+
+      :param buffer: a buffer for holding the packet
+      :param stream: stream of bytes
+      :return: a new instance of :py:class:`~.RawViscaPacket` representing the packet or None if the buffer is too small
+
+
+   .. py:method:: write_data(self, b)
+
+      Writes a byte in the buffer at the next available position.
+
+      If the buffer is full then it will return False.
+
+      :param b: a byte to write
+      :returns: True if the byte has be written in the buffer, otherwise False
+
+
+   .. py:method:: write_bytes(self, data)
+
+      Writes bytes in the buffer at the next available position.
+
+      If the buffer is full then it will return False.
+
+      :param b: a byte to write
+      :returns: True if all bytes have be written in the buffer, otherwise False
+
+
+

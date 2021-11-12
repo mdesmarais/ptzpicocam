@@ -1,0 +1,120 @@
+:py:mod:`ptzsimcam.robot_camera`
+================================
+
+.. py:module:: ptzsimcam.robot_camera
+
+.. autoapi-nested-parse::
+
+   Defines a camera robot based on the EVI-D100 by Sony for pybullet.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   ptzsimcam.robot_camera.RobotCamera
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   ptzsimcam.robot_camera.compute_projection_matrix
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   ptzsimcam.robot_camera.ZOOM_SPEEDS
+
+
+.. py:data:: ZOOM_SPEEDS
+   :annotation: = [0, 1, 2, 5, 7, 10, 15, 20]
+
+   Association between a visca zoom speed (0, 7) and a zoom speed in degrees/s.
+
+
+.. py:class:: RobotCamera(main_link, pan_joint_index, tilt_joint_index)
+
+   Represents a camera that uses the VISCA protocol.
+
+   Creates a new robot camera in a simulation.
+
+   A robot camera is made of 2 joints.
+
+   :param main_link: root link in the associated urdf
+   :param pan_joint_index: index of the first joint
+   :param tilt_joint_index: index of the second joint
+
+   .. py:attribute:: ZOOM_FOV_MIN
+      :annotation: = 2.9
+
+      
+
+   .. py:attribute:: ZOOM_FOV_MAX
+      :annotation: = 55.9
+
+      
+
+   .. py:method:: drive(self)
+
+      Moves the camera with the current pan and tilt speeds.
+
+
+   .. py:method:: get_base_from_camera(self)
+
+      Gets the base position at the end of the robot.
+
+
+   .. py:method:: recall_position(self, position_index)
+
+      Moves the camera to the position recorded at the given index.
+
+      :param position_index: index of the position to recall
+      :raises ValueError: if the index is not between 0 and 5 included
+
+
+   .. py:method:: render_image(self)
+
+      Renders an image using the simulated camera of pybullet.
+
+      The camera will be placed at the end of the robot.
+
+
+   .. py:method:: reset_positions(self)
+
+      Resets all recorded positions to 0.
+
+
+   .. py:method:: set_position(self, position_index)
+
+      Sets the given position index with the current camera position.
+
+      :param position_index: index of the position to set
+      :raises ValueError: if the index is not between 0 and 5 included
+
+
+   .. py:method:: update(self, refresh_freq)
+
+      Updates camera zoom and renders an image.
+
+      This method should not be called too often because
+      some computations are slow.
+
+      :param refresh_freq: frequency at which this method will be called
+
+
+
+.. py:function:: compute_projection_matrix(fov)
+
+

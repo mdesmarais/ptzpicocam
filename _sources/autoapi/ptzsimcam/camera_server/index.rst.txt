@@ -1,0 +1,101 @@
+:py:mod:`ptzsimcam.camera_server`
+=================================
+
+.. py:module:: ptzsimcam.camera_server
+
+.. autoapi-nested-parse::
+
+   Defines functions for handling incoming VISCA packets.
+
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   ptzsimcam.camera_server.handle_memory_packet
+   ptzsimcam.camera_server.handle_pan_tilt_packet
+   ptzsimcam.camera_server.handle_zoom_packet
+   ptzsimcam.camera_server.process_packet
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   ptzsimcam.camera_server.SPEEDS_LOOKUP
+   ptzsimcam.camera_server.logger
+   ptzsimcam.camera_server.PACKET_SIGNATURES
+
+
+.. py:data:: SPEEDS_LOOKUP
+   :annotation: :List[float] = [0, 1.3, 1.7, 2.2, 3.2, 5.4, 11, 16, 21, 27, 31, 35, 40, 42, 44, 46, 48, 50, 79, 81, 83, 85, 87, 90, 100]
+
+   Association between a speed value (from 1 to 0x18, it is an index) to a speed in degrees/s.
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:function:: handle_memory_packet(camera, packet)
+
+   Saves, restores, resets memory points according to the given packet.
+
+   The packet should be a Memory command.
+   If the command is set or recall then the position index must
+   be a number between 0 and 5 included, otherwise the packet
+   will be ignored.
+
+   :param camera: instance of the camera to update
+   :param packet: a packet containing a Memory command
+
+
+.. py:function:: handle_pan_tilt_packet(camera, packet)
+
+   Updates camera direction speeds according to the given packet.
+
+   The packet should be a PanTiltDrive command.
+   If it is not valid then the method will reuurn False.
+   If it contains a non valid speed then pan and tilt speed will be set to 0.
+
+   :param camera: instance of the camera to update
+   :param packet: a packet containing a PanTiltDrive command
+
+
+.. py:function:: handle_zoom_packet(camera, packet)
+
+   Updates the camera zoom according to the given packet.
+
+   The packet should be a Zoom command.
+   If the packet contains an invalid zoom speed then it will be ignored,
+   or if the direction is unknown.
+
+   :param camera: instance of the camera to update
+   :param packet: a packet containing a Zoom command
+
+
+.. py:function:: process_packet(camera, packet)
+
+   Calls the corresponding handler for the given packet.
+
+   If the packet has an unknown signature then it will be ignored.
+
+   :param camera: instance of the camera to update
+   :param packet: packet to handle
+
+
+.. py:data:: PACKET_SIGNATURES
+   :annotation: :Dict[bytes, Callable[[ptzsimcam.robot_camera.RobotCamera, ptzpicocam.visca.RawViscaPacket], bool]]
+
+   Association between the start of a packet with a handler
+
+

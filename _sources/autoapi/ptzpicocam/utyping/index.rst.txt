@@ -1,0 +1,35 @@
+:py:mod:`ptzpicocam.utyping`
+============================
+
+.. py:module:: ptzpicocam.utyping
+
+.. autoapi-nested-parse::
+
+   Dummy module for keeping compatibility between python and micropython.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   ptzpicocam.utyping.BinaryIO
+   ptzpicocam.utyping.Optional
+
+
+
+
+.. py:class:: BinaryIO
+
+   Emulates BinaryIO from python typing module.
+
+
+.. py:class:: Optional
+
+   Emulates Optional from python typing module.
+
+
