@@ -84,7 +84,7 @@ class Camera:
         self.pan_dir = PanDirection.NONE
 
         self.tilt_speed = 1
-        self.tilt_dir = PanDirection.NONE
+        self.tilt_dir = TiltDirection.NONE
 
         self.zoom_speed = 1
         self.zoom_dir = ZoomDirection.NONE

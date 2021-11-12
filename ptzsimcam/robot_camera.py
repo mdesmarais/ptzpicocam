@@ -93,7 +93,7 @@ class RobotCamera:
         view_matrix = pb.computeViewMatrix(tool_pos, direction, self.camera_orientation)
 
         # @TODO change image size
-        pb.getCameraImage(128, 128, view_matrix, self.projection_matrix)
+        pb.getCameraImage(128, 128, view_matrix, self.projection_matrix, flags=pb.ER_NO_SEGMENTATION_MASK)
 
     def reset_positions(self):
         """Resets all recorded positions to 0."""
