@@ -1,7 +1,9 @@
-name: "Build and deploy Github pages"
+name: "Run tests & Build and deploy Github pages"
 
 on:
   push:
+    branches: [ master ]
+  pull_request:
     branches: [ master ]
 
 jobs:
@@ -16,9 +18,16 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Install tox and running doc build
+      - name: Install tox
         run: |
           pip3 install tox
+
+      - name: Run tests
+        run: |
+          tox
+
+      - name: Build doc
+        run: |
           tox -e docs
 
       - name: Deploy doc
