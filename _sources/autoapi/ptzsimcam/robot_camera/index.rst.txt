@@ -17,6 +17,7 @@ Classes
 
 .. autoapisummary::
 
+   ptzsimcam.robot_camera.ParamsMemory
    ptzsimcam.robot_camera.RobotCamera
 
 
@@ -42,6 +43,32 @@ Attributes
    :annotation: = [0, 1, 2, 5, 7, 10, 15, 20]
 
    Association between a visca zoom speed (0, 7) and a zoom speed in degrees/s.
+
+
+.. py:class:: ParamsMemory
+
+   Parameters of the camera that have been saved.
+
+   .. py:attribute:: pan_joint_value
+      :annotation: :float
+
+      
+
+   .. py:attribute:: tilt_joint_value
+      :annotation: :float
+
+      
+
+   .. py:attribute:: zoom_fov
+      :annotation: :float
+
+      
+
+   .. py:method:: joints(self)
+      :property:
+
+      Gets joint values (pan and tilt) as a tuple of float
+
 
 
 .. py:class:: RobotCamera(main_link, pan_joint_index, tilt_joint_index)
@@ -76,11 +103,24 @@ Attributes
       Gets the base position at the end of the robot.
 
 
-   .. py:method:: recall_position(self, position_index)
+   .. py:method:: is_busy(self)
+      :property:
 
-      Moves the camera to the position recorded at the given index.
+      Returns True if the camera is executing a command, otherwise False.
 
-      :param position_index: index of the position to recall
+
+   .. py:method:: read_joints(self)
+
+      Reads joint values (pan, tilt) and returns them as a tuple
+
+      :returns: a tuple containing joint values.
+
+
+   .. py:method:: recall_memory(self, memory_index)
+
+      Updates camera with parameters recorded at the given index.
+
+      :param memory_index: index of the memory to recall
       :raises ValueError: if the index is not between 0 and 5 included
 
 
@@ -91,16 +131,11 @@ Attributes
       The camera will be placed at the end of the robot.
 
 
-   .. py:method:: reset_positions(self)
+   .. py:method:: set_memory(self, memory_index)
 
-      Resets all recorded positions to 0.
+      Sets the given memory index with the current camera parameters.
 
-
-   .. py:method:: set_position(self, position_index)
-
-      Sets the given position index with the current camera position.
-
-      :param position_index: index of the position to set
+      :param memory_index: index of the memory to set
       :raises ValueError: if the index is not between 0 and 5 included
 
 

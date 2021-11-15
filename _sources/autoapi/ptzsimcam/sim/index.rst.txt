@@ -26,19 +26,17 @@ Functions
 
 .. autoapisummary::
 
-   ptzsimcam.sim.serial_control_thread
    ptzsimcam.sim.main
 
 
 
-.. py:class:: Simulation(camera, enable_gui_control = False)
+.. py:class:: Simulation(camera_server)
 
    A pybullet simulation for controlling a camera.
 
    Creates a new simulation into pybullet.
 
    :param camera: instance of the robot camera to control
-   :param enable_gui_control: if True then the camera will be controlled with sliders
 
    .. py:method:: gui_controller(self)
 
@@ -49,16 +47,6 @@ Functions
 
       Simulation loop.
 
-
-
-.. py:function:: serial_control_thread(serial_port, camera)
-
-   Reads packet from a serial port and sends them to the camera.
-
-   This function is blocking, it should be executed in a dedicated thread.
-
-   :param serial_port: a serial port for receiving packets
-   :param camera: instance of the camera to control
 
 
 .. py:function:: main()

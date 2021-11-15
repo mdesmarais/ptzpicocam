@@ -59,24 +59,21 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#ptzsimcam.sim.serial_control_thread" title="ptzsimcam.sim.serial_control_thread"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serial_control_thread</span></code></a>(serial_port, camera)</p></td>
-<td><p>Reads packet from a serial port and sends them to the camera.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#ptzsimcam.sim.main" title="ptzsimcam.sim.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ptzsimcam.sim.main" title="ptzsimcam.sim.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>()</p></td>
 <td><p>Main function.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py class">
 <dt class="sig sig-object py" id="ptzsimcam.sim.Simulation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptzsimcam.sim.</span></span><span class="sig-name descname"><span class="pre">Simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camera</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_gui_control</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzsimcam.sim.Simulation" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptzsimcam.sim.</span></span><span class="sig-name descname"><span class="pre">Simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camera_server</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzsimcam.sim.Simulation" title="Permalink to this definition">¶</a></dt>
 <dd><p>A pybullet simulation for controlling a camera.</p>
 <p>Creates a new simulation into pybullet.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>camera</strong> (<a class="reference internal" href="../robot_camera/index.html#ptzsimcam.robot_camera.RobotCamera" title="ptzsimcam.robot_camera.RobotCamera"><em>ptzsimcam.robot_camera.RobotCamera</em></a>) – instance of the robot camera to control</p></li>
-<li><p><strong>enable_gui_control</strong> (<em>bool</em>) – if True then the camera will be controlled with sliders</p></li>
+<li><p><strong>camera</strong> – instance of the robot camera to control</p></li>
+<li><p><strong>camera_server</strong> (<a class="reference internal" href="../camera_server/index.html#ptzsimcam.camera_server.CameraServer" title="ptzsimcam.camera_server.CameraServer"><em>ptzsimcam.camera_server.CameraServer</em></a>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -97,24 +94,6 @@
 <dd><p>Simulation loop.</p>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ptzsimcam.sim.serial_control_thread">
-<span class="sig-prename descclassname"><span class="pre">ptzsimcam.sim.</span></span><span class="sig-name descname"><span class="pre">serial_control_thread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">serial_port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">camera</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzsimcam.sim.serial_control_thread" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads packet from a serial port and sends them to the camera.</p>
-<p>This function is blocking, it should be executed in a dedicated thread.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>serial_port</strong> (<em>str</em>) – a serial port for receiving packets</p></li>
-<li><p><strong>camera</strong> (<a class="reference internal" href="../robot_camera/index.html#ptzsimcam.robot_camera.RobotCamera" title="ptzsimcam.robot_camera.RobotCamera"><em>ptzsimcam.robot_camera.RobotCamera</em></a>) – instance of the camera to control</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">

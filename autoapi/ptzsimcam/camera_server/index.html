@@ -37,6 +37,20 @@
 <p>Defines functions for handling incoming VISCA packets.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ptzsimcam.camera_server.CameraServer" title="ptzsimcam.camera_server.CameraServer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CameraServer</span></code></a></p></td>
+<td><p>Receives and processes packets from a serial port.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="functions">
 <h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
 <table class="longtable docutils align-default">
@@ -45,16 +59,19 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#ptzsimcam.camera_server.handle_memory_packet" title="ptzsimcam.camera_server.handle_memory_packet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handle_memory_packet</span></code></a>(camera, packet)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ptzsimcam.camera_server.serial_control_thread" title="ptzsimcam.camera_server.serial_control_thread"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serial_control_thread</span></code></a>(serial_port, packets_queue)</p></td>
+<td><p>Reads packet from a serial port and sends it to the pakets queue.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ptzsimcam.camera_server.handle_memory_packet" title="ptzsimcam.camera_server.handle_memory_packet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handle_memory_packet</span></code></a>(camera, packet)</p></td>
 <td><p>Saves, restores, resets memory points according to the given packet.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#ptzsimcam.camera_server.handle_pan_tilt_packet" title="ptzsimcam.camera_server.handle_pan_tilt_packet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handle_pan_tilt_packet</span></code></a>(camera, packet)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ptzsimcam.camera_server.handle_pan_tilt_packet" title="ptzsimcam.camera_server.handle_pan_tilt_packet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handle_pan_tilt_packet</span></code></a>(camera, packet)</p></td>
 <td><p>Updates camera direction speeds according to the given packet.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#ptzsimcam.camera_server.handle_zoom_packet" title="ptzsimcam.camera_server.handle_zoom_packet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handle_zoom_packet</span></code></a>(camera, packet)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#ptzsimcam.camera_server.handle_zoom_packet" title="ptzsimcam.camera_server.handle_zoom_packet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handle_zoom_packet</span></code></a>(camera, packet)</p></td>
 <td><p>Updates the camera zoom according to the given packet.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#ptzsimcam.camera_server.process_packet" title="ptzsimcam.camera_server.process_packet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_packet</span></code></a>(camera, packet)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ptzsimcam.camera_server.process_packet" title="ptzsimcam.camera_server.process_packet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_packet</span></code></a>(camera, packet)</p></td>
 <td><p>Calls the corresponding handler for the given packet.</p></td>
 </tr>
 </tbody>
@@ -91,13 +108,70 @@
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ptzsimcam.camera_server.serial_control_thread">
+<span class="sig-prename descclassname"><span class="pre">ptzsimcam.camera_server.</span></span><span class="sig-name descname"><span class="pre">serial_control_thread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">serial_port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packets_queue</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzsimcam.camera_server.serial_control_thread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads packet from a serial port and sends it to the pakets queue.</p>
+<p>This function is blocking, it should be executed in a dedicated thread.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>serial_port</strong> (<em>str</em>) – a serial port for receiving packets</p></li>
+<li><p><strong>packets_queue</strong> (<em>Queue</em><em>[</em><a class="reference internal" href="../../ptzpicocam/visca/index.html#ptzpicocam.visca.RawViscaPacket" title="ptzpicocam.visca.RawViscaPacket"><em>RawViscaPacket</em></a><em>]</em>) – queue of packes that will be processed by the camera</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ptzsimcam.camera_server.CameraServer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptzsimcam.camera_server.</span></span><span class="sig-name descname"><span class="pre">CameraServer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camera</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzsimcam.camera_server.CameraServer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receives and processes packets from a serial port.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>camera</strong> (<a class="reference internal" href="../robot_camera/index.html#ptzsimcam.robot_camera.RobotCamera" title="ptzsimcam.robot_camera.RobotCamera"><em>ptzsimcam.robot_camera.RobotCamera</em></a>) – </p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptzsimcam.camera_server.CameraServer.process_incoming_packet">
+<span class="sig-name descname"><span class="pre">process_incoming_packet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzsimcam.camera_server.CameraServer.process_incoming_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes the first packet in the queue (if not empty).</p>
+<p>If the camera is busy then the method does nothing.
+It should be called periodically.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptzsimcam.camera_server.CameraServer.start_receiver_thread">
+<span class="sig-name descname"><span class="pre">start_receiver_thread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">serial_port</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzsimcam.camera_server.CameraServer.start_receiver_thread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts a new thread for receiving packets.</p>
+<p>The attriute <code class="xref py py-attr docutils literal notranslate"><span class="pre">started</span></code> will be set to True.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>serial_port</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ptzsimcam.camera_server.handle_memory_packet">
 <span class="sig-prename descclassname"><span class="pre">ptzsimcam.camera_server.</span></span><span class="sig-name descname"><span class="pre">handle_memory_packet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camera</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptzsimcam.camera_server.handle_memory_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Saves, restores, resets memory points according to the given packet.</p>
 <p>The packet should be a Memory command.
-If the command is set or recall then the position index must
+If the command is set or recall then the memory index must
 be a number between 0 and 5 included, otherwise the packet
-will be ignored.</p>
+will be ignored. Reset action is not implemented.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

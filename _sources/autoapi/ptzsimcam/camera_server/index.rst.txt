@@ -12,12 +12,21 @@
 Module Contents
 ---------------
 
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   ptzsimcam.camera_server.CameraServer
+
+
 
 Functions
 ~~~~~~~~~
 
 .. autoapisummary::
 
+   ptzsimcam.camera_server.serial_control_thread
    ptzsimcam.camera_server.handle_memory_packet
    ptzsimcam.camera_server.handle_pan_tilt_packet
    ptzsimcam.camera_server.handle_zoom_packet
@@ -46,14 +55,44 @@ Attributes
 
    
 
+.. py:function:: serial_control_thread(serial_port, packets_queue)
+
+   Reads packet from a serial port and sends it to the pakets queue.
+
+   This function is blocking, it should be executed in a dedicated thread.
+
+   :param serial_port: a serial port for receiving packets
+   :param packets_queue: queue of packes that will be processed by the camera
+
+
+.. py:class:: CameraServer(camera)
+
+   Receives and processes packets from a serial port.
+
+   .. py:method:: process_incoming_packet(self)
+
+      Processes the first packet in the queue (if not empty).
+
+      If the camera is busy then the method does nothing.
+      It should be called periodically.
+
+
+   .. py:method:: start_receiver_thread(self, serial_port)
+
+      Starts a new thread for receiving packets.
+
+      The attriute :py:attr:`~.CameraServer.started` will be set to True.
+
+
+
 .. py:function:: handle_memory_packet(camera, packet)
 
    Saves, restores, resets memory points according to the given packet.
 
    The packet should be a Memory command.
-   If the command is set or recall then the position index must
+   If the command is set or recall then the memory index must
    be a number between 0 and 5 included, otherwise the packet
-   will be ignored.
+   will be ignored. Reset action is not implemented.
 
    :param camera: instance of the camera to update
    :param packet: a packet containing a Memory command
