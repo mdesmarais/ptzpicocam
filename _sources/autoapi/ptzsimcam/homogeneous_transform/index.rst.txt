@@ -22,7 +22,6 @@ Functions
    ptzsimcam.homogeneous_transform.rot_y
    ptzsimcam.homogeneous_transform.rot_z
    ptzsimcam.homogeneous_transform.translation
-   ptzsimcam.homogeneous_transform.get_quat
 
 
 
@@ -48,19 +47,5 @@ Functions
 
    Return the 4x4 homogeneous transform corresponding to a translation of
    vec
-
-
-.. py:function:: get_quat(T)
-
-   Parameters
-   ----------
-   T : np.ndarray shape(4,4)
-       A 3d homogeneous transformation matrix
-
-   Returns
-   -------
-   quat : np.ndarray shape(4,)
-       a quaternion representing the rotation part of the homogeneous
-       transformation matrix
 
 
