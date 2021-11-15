@@ -1,6 +1,7 @@
 """Defines a camera robot based on the EVI-D100 by Sony for pybullet."""
 import math
-from typing import cast
+from dataclasses import dataclass
+from typing import Optional, Tuple, cast
 
 import numpy as np
 import pybullet as pb
@@ -10,6 +11,22 @@ from ptzsimcam.homogeneous_transform import rot_x, rot_z, translation
 
 ZOOM_SPEEDS = [0, 1, 2, 5, 7, 10, 15, 20]
 """Association between a visca zoom speed (0, 7) and a zoom speed in degrees/s."""
+
+
+@dataclass
+class ParamsMemory:
+
+    """Parameters of the camera that have been saved."""
+
+    pan_joint_value: float
+    tilt_joint_value: float
+    zoom_fov: float
+
+    @property
+    def joints(self) -> Tuple[float, float]:
+        """Gets joint values (pan and tilt) as a tuple of float"""
+        return (self.pan_joint_value, self.tilt_joint_value)
+
 
 class RobotCamera:
 
@@ -43,12 +60,9 @@ class RobotCamera:
         self.tilt_speed = 0.0
         self.zoom_speed = 0
 
-        # Recorded positions, 6 available
-        self.positions = [
-            [0.0, 0.0], [0.0, 0.0], [0.0, 0.0],
-            [0.0, 0.0], [0.0, 0.0], [0.0, 0.0],
-            [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]
-        ]
+        # Recorded params, 6 available
+        self.memories = [ParamsMemory(0.0, 0.0, self.ZOOM_FOV_MAX) for _ in range(6)]
+        self.target_memory: Optional['ParamsMemory'] = None
 
     def drive(self) -> None:
         """Moves the camera with the current pan and tilt speeds."""
@@ -66,18 +80,47 @@ class RobotCamera:
             rot_z(joint_states[0])).dot(self.second_join_base).dot(
                 rot_x(joint_states[1])).dot(self.camera_end)
 
-    def recall_position(self, position_index: int) -> None:
-        """Moves the camera to the position recorded at the given index.
+    @property
+    def is_busy(self) -> bool:
+        """Returns True if the camera is executing a command, otherwise False."""
+        return not self.target_memory is None
+
+    def read_joints(self) -> Tuple[float, float]:
+        """Reads joint values (pan, tilt) and returns them as a tuple
         
-        :param position_index: index of the position to recall
+        :returns: a tuple containing joint values.
+        """
+        joint_states = pb.getJointStates(self.main_link, self.joints)
+
+        pan_joint_value = cast(float, joint_states[0][0])
+        tilt_joint_value = cast(float, joint_states[1][0])
+
+        return (pan_joint_value, tilt_joint_value)
+
+    def recall_memory(self, memory_index: int) -> None:
+        """Updates camera with parameters recorded at the given index.
+        
+        :param memory_index: index of the memory to recall
         :raises ValueError: if the index is not between 0 and 5 included
         """
-        if position_index < 0 or position_index > 5:
-            raise ValueError('Invalid position index, must be between 0 and 5 included')
+        if memory_index < 0 or memory_index > 5:
+            raise ValueError('Invalid memory index, must be between 0 and 5 included')
+
+        self.target_memory = self.memories[memory_index]
+        target_fov = self.target_memory.zoom_fov
+
+        new_fov_distance = self.current_fov - target_fov
+
+        if new_fov_distance > 0:
+            self.zoom_speed = -4
+        elif new_fov_distance < 0:
+            self.zoom_speed = 4
+        else:
+            self.zoom_speed = 0
 
         pb.setJointMotorControlArray(
             self.main_link, self.joints, 
-            pb.POSITION_CONTROL, targetPositions=self.positions[position_index],
+            pb.POSITION_CONTROL, targetPositions=self.target_memory.joints,
             forces=[0.3, 0.3], positionGains=[0.01, 0.01]
         )
 
@@ -92,30 +135,20 @@ class RobotCamera:
         direction = R.from_matrix(world_from_tool[:3, :3]).apply(self.camera_direction)
         view_matrix = pb.computeViewMatrix(tool_pos, direction, self.camera_orientation)
 
-        # @TODO change image size
         pb.getCameraImage(128, 128, view_matrix, self.projection_matrix, flags=pb.ER_NO_SEGMENTATION_MASK)
 
-    def reset_positions(self):
-        """Resets all recorded positions to 0."""
-        for pos in self.positions:
-            pos[0] = 0.0
-            pos[1] = 0.0
-
-    def set_position(self, position_index: int) -> None:
-        """Sets the given position index with the current camera position.
+    def set_memory(self, memory_index: int) -> None:
+        """Sets the given memory index with the current camera parameters.
         
-        :param position_index: index of the position to set
+        :param memory_index: index of the memory to set
         :raises ValueError: if the index is not between 0 and 5 included
         """
-        if position_index < 0 or position_index > 5:
-            raise ValueError('Invalid position index, must be between 0 and 5 included')
+        if memory_index < 0 or memory_index > 5:
+            raise ValueError('Invalid memory index, must be between 0 and 5 included')
 
-        joint_states = pb.getJointStates(self.main_link, self.joints)
+        pan_joint_value, tilt_joint_value = self.read_joints()
 
-        pan_joint_value = cast(float, joint_states[0][0])
-        tilt_joint_value = cast(float, joint_states[1][0])
-
-        self.positions[position_index] = [pan_joint_value, tilt_joint_value]
+        self.memories[memory_index] = ParamsMemory(pan_joint_value, tilt_joint_value, self.current_fov)
 
     def update(self, refresh_freq: float) -> None:
         """Updates camera zoom and renders an image.
@@ -126,6 +159,13 @@ class RobotCamera:
         :param refresh_freq: frequency at which this method will be called
         """
         self.render_image()
+
+        if not self.target_memory is None:
+            joints = self.read_joints()
+
+            if np.allclose(self.target_memory.joints, joints, atol=1e-1) and self.current_fov == self.target_memory.zoom_fov:
+                self.target_memory = None
+
         zoom_amount = ZOOM_SPEEDS[abs(self.zoom_speed)]
         zoom_direction = -1 if self.zoom_speed < 0 else 1
 

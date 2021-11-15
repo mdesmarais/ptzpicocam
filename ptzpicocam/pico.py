@@ -219,9 +219,6 @@ def loop(joystick: 'Joystick', camera: 'Camera', uart, buttons: 'List[Button]') 
     buffer = bytearray(16)
     ZOOM_LED_PIN = Pin(5, Pin.OUT)
 
-    # Last time a memory packet has been sent
-    memory_command_time = 0
-
     while True:
         for btn in buttons:
             if btn.triggered_flag:
@@ -257,26 +254,18 @@ def loop(joystick: 'Joystick', camera: 'Camera', uart, buttons: 'List[Button]') 
 
 
             if camera.memory_command != MemoryAction.NONE:
-                if memory_command_time > 0:
-                    # Wait some time to be sure the camera has the time to perform the operation
-                    if time.ticks_ms() - memory_command_time > TIME_FOR_MEMORY_COMMAND_MEMORY:
-                        camera.memory_command = MemoryAction.NONE
-                        memory_command_time = 0
+                if camera.memory_command == MemoryAction.RECALL:
+                    memory_packet = CameraAPI.create_recall_position_packet(buffer,camera.memory_index)
                 else:
-                    memory_command_time = time.ticks_ms()
+                    memory_packet = CameraAPI.create_set_position_packet(buffer,camera.memory_index)
 
-                    if camera.memory_command == MemoryAction.RECALL:
-                        memory_packet = CameraAPI.create_recall_position_packet(buffer,camera.memory_index)
-                    else:
-                        memory_packet = CameraAPI.create_set_position_packet(buffer,camera.memory_index)
+                uart.write(memory_packet.encode())
+                camera.memory_command = MemoryAction.NONE
 
-                    uart.write(memory_packet.encode())
-            else:
-                # If no memory packet to send then we can resume drive and zoom packets sending
-                uart.write(zoom_packet.encode())
+            uart.write(zoom_packet.encode())
 
-                pan_tilt_packet = CameraAPI.create_pan_tilt_packet(buffer, camera.pan_speed, camera.pan_dir, camera.tilt_speed, camera.tilt_dir)
-                uart.write(pan_tilt_packet.encode())
+            pan_tilt_packet = CameraAPI.create_pan_tilt_packet(buffer, camera.pan_speed, camera.pan_dir, camera.tilt_speed, camera.tilt_dir)
+            uart.write(pan_tilt_packet.encode())
 
 
 def timer_isr(joystick: 'Joystick'):

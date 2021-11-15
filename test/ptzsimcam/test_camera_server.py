@@ -53,23 +53,17 @@ class TestHandleMemoryPacket(TestCase):
     def test_handle_memory_packet(self):
         camera = MagicMock()
 
-        with self.subTest('Should reset positions when given reset action'):
-            packet = self.create_memory_packet(0, 1)
-            handle_memory_packet(camera, packet)
-
-            camera.reset_positions.assert_called()
-
-        with self.subTest('Should set position when given set action'):
+        with self.subTest('Should set memory when given set action'):
             packet = self.create_memory_packet(1, 1)
             handle_memory_packet(camera, packet)
 
-            camera.set_position.assert_called_with(1)
+            camera.set_memory.assert_called_with(1)
 
-        with self.subTest('Should recall position when given recall action'):
+        with self.subTest('Should recall memory when given recall action'):
             packet = self.create_memory_packet(2, 1)
             handle_memory_packet(camera, packet)
 
-            camera.recall_position.assert_called_with(1)
+            camera.recall_memory.assert_called_with(1)
 
 
 class TestHandlePanTiltPacket(TestCase):

@@ -81,7 +81,6 @@ Bouton allbtn[1];
 
 volatile int8_t buttonToCheck = -1; // Will be modified by buttons irs
 MemoryCommand memoryCommand = MEMORY_NONE;
-uint32_t memoryCommandTime = 0; // Last time in ms when a memory packet has been sent
 
 void initJoystick() {
   joystick.minVal = 0;
@@ -196,24 +195,14 @@ void loop() {
   zoomPacket[4] = (camera.zoomDirection << 4) | camera.zoomSpeed;
 
   if (memoryCommand != MEMORY_NONE) {
-    if (memoryCommandTime > 0) {
-      if ((millis()-memoryCommandTime) >TIME_FOR_MEMORY_commande_memory) {
-        memoryCommand = MEMORY_NONE;
-        memoryCommandTime = 0;
-      }
-    }
-    else {
-      memoryCommandTime = millis();
-      memoryPacket[4] = memoryCommand;
-      memoryPacket[5] = 0;
+    memoryPacket[4] = memoryCommand;
+    memoryCommand = MEMORY_NONE;
+    Serial.write(memoryPacket, 7);
+  }
 
-      Serial.write(memoryPacket, 7);
-    }
-  }
-  else {
-    Serial.write(drivePacket, 9);
-    Serial.write(zoomPacket, 6);
-  }
+  Serial.write(drivePacket, 9);
+  Serial.write(zoomPacket, 6);
+
 
   delay(33);
 }

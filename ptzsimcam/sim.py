@@ -2,13 +2,10 @@
 import argparse
 import os
 import time
-from threading import Thread
 
 import pybullet as pb
-from ptzpicocam.visca import RawViscaPacket
-from serial import Serial, SerialException
 
-from ptzsimcam.camera_server import SPEEDS_LOOKUP, process_packet
+from ptzsimcam.camera_server import SPEEDS_LOOKUP, CameraServer
 from ptzsimcam.robot_camera import RobotCamera
 
 
@@ -16,14 +13,14 @@ class Simulation:
 
     """A pybullet simulation for controlling a camera."""
 
-    def __init__(self, camera: 'RobotCamera', enable_gui_control: bool = False):
+    def __init__(self, camera_server: 'CameraServer'):
         """Creates a new simulation into pybullet.
         
         :param camera: instance of the robot camera to control
-        :param enable_gui_control: if True then the camera will be controlled with sliders
         """
-        self.camera = camera
-        self.enable_gui_control = enable_gui_control
+        self.camera = camera_server.camera
+        self.camera_server = camera_server
+        self.enable_gui_control = not camera_server.started
 
         self.pan_vel_slider = pb.addUserDebugParameter('PAN vel', -0x18, 0x18, startValue=0)
         self.tilt_vel_slider = pb.addUserDebugParameter('TILT vel', -0x17, 0x17, startValue=0)
@@ -70,6 +67,8 @@ class Simulation:
             if self.enable_gui_control:
                 self.gui_controller()
 
+            self.camera_server.process_incoming_packet()
+
             # By default the simulation runs at 240Hz
             # For the camera, 30Hz is enough. 240 / 30 = 8
             # We render an image every 8 frames.
@@ -80,30 +79,6 @@ class Simulation:
             pb.stepSimulation()
             frame_count += 1
             time.sleep(1.0/240)
-
-
-def serial_control_thread(serial_port: str, camera: 'RobotCamera') -> None:
-    """Reads packet from a serial port and sends them to the camera.
-
-    This function is blocking, it should be executed in a dedicated thread.
-    
-    :param serial_port: a serial port for receiving packets
-    :param camera: instance of the camera to control"""
-    try:
-        conn = Serial(serial_port)
-    except SerialException:
-        print(f'Unable to connect to {serial_port}')
-        return
-
-    buffer = bytearray(16)
-
-    while True:
-        p = RawViscaPacket.decode(buffer, conn)
-
-        if p is None:
-            continue
-
-        process_packet(camera, p)
 
 
 def main() -> None:
@@ -131,13 +106,13 @@ def main() -> None:
     pb.loadURDF(os.path.join(current_foler, 'wall_blue.urdf'), basePosition=[-5.0, 0.0, 0.5])
 
     camera = RobotCamera(robot_camera, 1, 2)
+    camera_server = CameraServer(camera)
     serial_port = args.serial_port
 
     if not serial_port is None:
-        serial_thread = Thread(target=serial_control_thread, args=(serial_port, camera))
-        serial_thread.start()
-
-    sim = Simulation(camera, enable_gui_control=serial_port is None)
+        camera_server.start_receiver_thread(serial_port)
+        
+    sim = Simulation(camera_server)
     sim.run()
     pb.disconnect()
 

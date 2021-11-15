@@ -1,8 +1,11 @@
 """Defines functions for handling incoming VISCA packets."""
 import logging
+from queue import Empty, Queue
+from threading import Thread
 from typing import Callable, Dict, List
 
 from ptzpicocam.visca import RawViscaPacket
+from serial import Serial, SerialException
 
 from ptzsimcam.robot_camera import RobotCamera
 
@@ -16,34 +19,91 @@ SPEEDS_LOOKUP: List[float] = [0,
 logger = logging.getLogger(__name__)
 
 
+def serial_control_thread(serial_port: str, packets_queue: "Queue[RawViscaPacket]") -> None:
+    """Reads packet from a serial port and sends it to the pakets queue.
+
+    This function is blocking, it should be executed in a dedicated thread.
+    
+    :param serial_port: a serial port for receiving packets
+    :param packets_queue: queue of packes that will be processed by the camera
+    """
+    try:
+        conn = Serial(serial_port)
+    except SerialException:
+        logger.error(f'Unable to connect to {serial_port}')
+        return
+
+    while True:
+        p = RawViscaPacket.decode(bytearray(16), conn)
+
+        if not p is None:
+            packets_queue.put(p, block=True, timeout=None)
+
+
+class CameraServer:
+
+    """Receives and processes packets from a serial port."""
+
+    def __init__(self, camera: 'RobotCamera'):
+        self.camera = camera
+        self.packets_queue: "Queue[RawViscaPacket]" = Queue(2)
+        self.started = False
+
+    def process_incoming_packet(self) -> None:
+        """Processes the first packet in the queue (if not empty).
+        
+        If the camera is busy then the method does nothing.
+        It should be called periodically.
+        """
+        if self.camera.is_busy:
+            return
+
+        try:
+            packet = self.packets_queue.get(block=False)
+        except Empty:
+            pass
+        else:
+            process_packet(self.camera, packet)
+
+    def start_receiver_thread(self, serial_port: str) -> None:
+        """Starts a new thread for receiving packets.
+        
+        The attriute :py:attr:`~.CameraServer.started` will be set to True.
+        """
+        self.started = True
+        receiver_thread = Thread(target=serial_control_thread, args=(serial_port, self.packets_queue))
+        receiver_thread.start()
+
+
 def handle_memory_packet(camera: 'RobotCamera', packet: 'RawViscaPacket') -> bool:
     """Saves, restores, resets memory points according to the given packet.
     
     The packet should be a Memory command.
-    If the command is set or recall then the position index must
+    If the command is set or recall then the memory index must
     be a number between 0 and 5 included, otherwise the packet
-    will be ignored.
+    will be ignored. Reset action is not implemented.
     
     :param camera: instance of the camera to update
-    :param packet: a packet containing a Memory command"""
+    :param packet: a packet containing a Memory command
+    """
     packet_data = packet.data
     if len(packet_data) != 5:
         logger.warning(f'Invalid memory packet, expected size of 5, got {len(packet_data)}')
         return False
 
     action = packet_data[3]
-    position_index = packet_data[4]
+    memory_index = packet_data[4]
 
-    if position_index < 0 or position_index > 5:
-        logger.warning(f'Invalid position index {position_index}')
+    if memory_index < 0 or memory_index > 5:
+        logger.warning(f'Invalid memory index {memory_index}')
         return False
 
     if action == 0:
-        camera.reset_positions()
+        logger.warning('Reset memory command is not implemented yet')
     elif action == 1:
-        camera.set_position(position_index)
+        camera.set_memory(memory_index)
     elif action == 2:
-        camera.recall_position(position_index)
+        camera.recall_memory(memory_index)
     else:
         logger.warning(f'Unknown memory command {action}')
         return False
