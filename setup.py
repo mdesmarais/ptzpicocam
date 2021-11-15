@@ -22,6 +22,5 @@ setup(
     install_requires=deps,
     extras_require={
         'docs': ['sphinx', 'sphinx-autoapi']
-    },
-    scripts=['scripts/ptzsim']
+    }
 )
