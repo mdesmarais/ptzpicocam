@@ -2,7 +2,6 @@
 import math
 
 import numpy as np
-from scipy.spatial.transform import Rotation as R
 
 
 def rot_x(alpha):
@@ -42,18 +41,3 @@ def translation(vec):
     T[3, 3] = 1
     return T
 
-
-def get_quat(T):
-    """
-    Parameters
-    ----------
-    T : np.ndarray shape(4,4)
-        A 3d homogeneous transformation matrix
-
-    Returns
-    -------
-    quat : np.ndarray shape(4,)
-        a quaternion representing the rotation part of the homogeneous
-        transformation matrix
-    """
-    return R.from_matrix(T[:3, :3]).as_quat()

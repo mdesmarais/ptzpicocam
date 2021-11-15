@@ -5,7 +5,6 @@ from typing import Optional, Tuple, cast
 
 import numpy as np
 import pybullet as pb
-from scipy.spatial.transform import Rotation as R
 
 from ptzsimcam.homogeneous_transform import rot_x, rot_z, translation
 
@@ -132,7 +131,7 @@ class RobotCamera:
         world_from_tool = self.get_base_from_camera()
         tool_pos = world_from_tool[:3, 3]
 
-        direction = R.from_matrix(world_from_tool[:3, :3]).apply(self.camera_direction)
+        direction = world_from_tool[:3, :3].dot(self.camera_direction)
         view_matrix = pb.computeViewMatrix(tool_pos, direction, self.camera_orientation)
 
         pb.getCameraImage(128, 128, view_matrix, self.projection_matrix, flags=pb.ER_NO_SEGMENTATION_MASK)
